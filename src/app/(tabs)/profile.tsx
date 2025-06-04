@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet } from "react-native";
 import React from "react";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
+import { Colors } from "@/constants/Colors";
 
 export default function ProfileTabScreen() {
   return (
@@ -22,6 +23,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   description: {
+    color: Colors.surface,
     textAlign: "center",
   },
 });

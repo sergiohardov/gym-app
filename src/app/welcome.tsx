@@ -24,10 +24,12 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   description: {
+    color: Colors.secondary,
     fontSize: 55,
     fontWeight: "bold",
   },
   link: {
+    color: Colors.secondary,
     fontSize: 14,
     textAlign: "center",
     fontWeight: "bold",
