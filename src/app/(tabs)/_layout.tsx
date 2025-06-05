@@ -41,9 +41,10 @@ export default function TabsLayout() {
       />
 
       <Tabs.Screen
-        name="exercise"
+        name="(exercises)"
         options={{
-          title: "Упражнение",
+          title: "Упражнения",
+          headerShown: false,
           tabBarIcon: ({ size, color, focused }) => (
             <Ionicons
               name={focused ? "library" : "library-outline"}

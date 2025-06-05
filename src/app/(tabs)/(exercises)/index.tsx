@@ -1,11 +1,13 @@
-import { View, Text, FlatList, StyleSheet, TextInput } from "react-native";
+import { View, Text, FlatList, StyleSheet } from "react-native";
 import { useState } from "react";
 import { Exercises } from "@/mock/all";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
+import Input from "@/components/Input";
 
 export default function ExerciseTabScreen() {
   const [searchInput, setSearchInput] = useState("");
+
   const data = Exercises;
 
   const filteredData = data.filter((item) =>
@@ -14,15 +16,11 @@ export default function ExerciseTabScreen() {
 
   return (
     <View style={style.container}>
-      <View style={style.search}>
-        <Ionicons name="search" size={20} color={Colors.surface} />
-        <TextInput
-          style={style.searchInput}
-          value={searchInput}
-          onChangeText={setSearchInput}
-          returnKeyType="search"
-        />
-      </View>
+      <Input
+        icon={<Ionicons name="search" size={20} color={Colors.surface} />}
+        value={searchInput}
+        setValue={setSearchInput}
+      />
 
       <FlatList
         style={style.list}
