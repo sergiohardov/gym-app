@@ -12,6 +12,8 @@ import { router, Stack } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import Input from "@/components/Input";
+import { exercises } from "db/schema";
+import { db } from "db/client";
 
 export default function ExerciseCreateModal() {
   const [title, setTitle] = useState("");
@@ -21,7 +23,11 @@ export default function ExerciseCreateModal() {
     router.back();
   };
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
+    await db.insert(exercises).values({
+      title: title,
+    });
+
     setTitle("");
     router.back();
   };

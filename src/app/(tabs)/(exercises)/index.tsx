@@ -1,16 +1,18 @@
 import { View, Text, FlatList, StyleSheet } from "react-native";
 import { useState } from "react";
-import { Exercises } from "@/mock/all";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import Input from "@/components/Input";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { exercises } from "db/schema";
+import { db } from "db/client";
 
 export default function ExerciseTabScreen() {
   const [searchInput, setSearchInput] = useState("");
 
-  const data = Exercises;
+  const { data } = useLiveQuery(db.select().from(exercises));
 
-  const filteredData = data.filter((item) =>
+  const filteredData = data?.filter((item) =>
     item.title.toLowerCase().includes(searchInput.toLowerCase())
   );
 
