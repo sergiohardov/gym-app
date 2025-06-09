@@ -1,4 +1,10 @@
-import { View, Text, FlatList, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 import { useState } from "react";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
@@ -6,6 +12,7 @@ import Input from "@/components/base/Input";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { exercises } from "db/schema";
 import { db } from "db/client";
+import { removeExercise } from "db/queries";
 
 export default function ExerciseTabScreen() {
   const [searchInput, setSearchInput] = useState("");
@@ -31,6 +38,11 @@ export default function ExerciseTabScreen() {
         renderItem={({ item }) => (
           <View style={style.column}>
             <Text>{item.title}</Text>
+            <TouchableOpacity
+              onPress={async () => await removeExercise(item.id)}
+            >
+              <Ionicons name="close" size={20} color={"red"} />
+            </TouchableOpacity>
           </View>
         )}
         ListEmptyComponent={() => (
@@ -73,6 +85,9 @@ const style = StyleSheet.create({
     padding: 15,
     borderRadius: 5,
     flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   notFound: {
     textAlign: "center",

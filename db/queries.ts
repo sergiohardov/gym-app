@@ -3,7 +3,7 @@ import { db } from "./client";
 import { exercises } from "./schema";
 import { NewExercise } from "@/types/db";
 
-export const getAllExercises = async () => {
+export const getExercises = async () => {
   return await db.select().from(exercises).orderBy(asc(exercises.title));
 };
 
@@ -16,7 +16,7 @@ export const createExercise = async (
       ...exerciseData,
     })
     .returning();
-    
+
   return exercise;
 };
 
