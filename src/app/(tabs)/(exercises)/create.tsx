@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import Input from "@/components/Input";
 import { exercises } from "db/schema";
 import { db } from "db/client";
+import Button from "@/components/base/Button";
 
 export default function ExerciseCreateModal() {
   const [title, setTitle] = useState("");
@@ -55,9 +56,8 @@ export default function ExerciseCreateModal() {
               <Text style={styles.inputLabel}>Название</Text>
               <Input value={title} setValue={setTitle} autofocus={true} />
             </View>
-            <TouchableOpacity style={styles.button} onPress={handleAdd}>
-              <Text style={styles.buttonText}>Добавить</Text>
-            </TouchableOpacity>
+            
+            <Button title="Добавить" callback={handleAdd} />
           </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
@@ -84,24 +84,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 20,
     textAlign: "center",
-  },
-  inputField: {
-    borderColor: Colors.secondary,
-    borderWidth: 1,
-    width: "100%",
-    backgroundColor: Colors.primary,
-    padding: 16,
-  },
-  button: {
-    backgroundColor: Colors.secondary,
-    flexDirection: "row",
-    justifyContent: "center",
-    padding: 14,
-    borderRadius: 6,
-  },
-  buttonText: {
-    color: Colors.primary,
-    fontWeight: "bold",
-    fontSize: 16,
   },
 });
