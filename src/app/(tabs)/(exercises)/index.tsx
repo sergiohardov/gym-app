@@ -2,7 +2,7 @@ import { View, Text, FlatList, StyleSheet } from "react-native";
 import { useState } from "react";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
-import Input from "@/components/Input";
+import Input from "@/components/base/Input";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { exercises } from "db/schema";
 import { db } from "db/client";

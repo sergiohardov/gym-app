@@ -11,7 +11,7 @@ import React, { useState } from "react";
 import { router, Stack } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
-import Input from "@/components/Input";
+import Input from "@/components/base/Input";
 import { exercises } from "db/schema";
 import { db } from "db/client";
 import Button from "@/components/base/Button";
