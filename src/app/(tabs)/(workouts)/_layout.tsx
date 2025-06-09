@@ -22,6 +22,12 @@ export default function ExercisesTabLayout() {
         }}
       />
 
+      <Stack.Screen
+        name="create"
+        options={{
+          title: "Новая Тренировка",
+        }}
+      />
     </Stack>
   );
 }
