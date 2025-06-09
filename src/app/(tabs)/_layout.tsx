@@ -1,5 +1,3 @@
-import { View, Text } from "react-native";
-import React from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
 import { Colors } from "@/constants/Colors";
@@ -27,9 +25,10 @@ export default function TabsLayout() {
       />
 
       <Tabs.Screen
-        name="workout"
+        name="(workouts)"
         options={{
-          title: "Тренировка",
+          title: "Тренировки",
+          headerShown: false,
           tabBarIcon: ({ size, color, focused }) => (
             <Ionicons
               name={focused ? "barbell" : "barbell-outline"}

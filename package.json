@@ -10,6 +10,7 @@
     "generate": "drizzle-kit generate"
   },
   "dependencies": {
+    "@react-native-picker/picker": "^2.11.0",
     "babel-plugin-inline-import": "^3.0.0",
     "drizzle-orm": "^0.44.2",
     "expo": "~53.0.9",
