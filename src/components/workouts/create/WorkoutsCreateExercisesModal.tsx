@@ -9,48 +9,45 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
+import { useWorkoutsCreateContext } from "@/contexts/WorkoutsCreateContext";
 
-export interface Exercise {
-  id: number;
-  title: string;
-}
+export default function WorkoutsCreateExercisesModal() {
+  const { state, dispatch, dbExercises } = useWorkoutsCreateContext();
 
-interface WorkoutExerciseModalProps {
-  visible: boolean;
-  exercises: Exercise[];
-  onClose: () => void;
-  onSelectExercise: (exerciseId: number) => void;
-}
-
-export default function WorkoutExerciseModal({
-  visible,
-  exercises,
-  onClose,
-  onSelectExercise,
-}: WorkoutExerciseModalProps) {
   return (
     <Modal
       animationType="fade"
       transparent={true}
-      visible={visible}
-      onRequestClose={onClose}
+      visible={state.modalVisible}
+      onRequestClose={() => dispatch({ type: "HIDE_MODAL" })}
     >
       <View style={styles.overlay}>
         <View style={styles.content}>
           <View style={styles.header}>
             <Text style={styles.title}>Выберите упражнение</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <TouchableOpacity
+              onPress={() => dispatch({ type: "HIDE_MODAL" })}
+              style={styles.closeButton}
+            >
               <Ionicons name="close" size={18} color="#fff" />
             </TouchableOpacity>
           </View>
 
           <FlatList
-            data={exercises}
+            data={dbExercises}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.listOption}
-                onPress={() => onSelectExercise(item.id)}
+                onPress={() => {
+                  dispatch({
+                    type: "ADD_EXERCISE",
+                    payload: {
+                      exerciseId: item.id,
+                    },
+                  });
+                  dispatch({ type: "HIDE_MODAL" });
+                }}
               >
                 <Text style={styles.listOptionText}>{item.title}</Text>
                 <Ionicons

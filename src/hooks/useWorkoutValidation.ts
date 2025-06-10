@@ -1,7 +1,7 @@
 import { useMemo } from "react";
-import { WorkoutState } from "../reducers/useWorkoutReducer";
+import { WorkoutCreateState } from "../reducers/useWorkoutsCreateReducer";
 
-export function useWorkoutValidation(state: WorkoutState) {
+export function useWorkoutValidation(state: WorkoutCreateState) {
   return useMemo(() => {
     if (!state.title.trim()) return false;
 
