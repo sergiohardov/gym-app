@@ -7,7 +7,6 @@ export const exercises = sqliteTable("exercises", {
   createdAt: text("created_at")
     .default(sql`(CURRENT_TIMESTAMP)`)
     .notNull(),
-  // updatedAt: '', // ?
 });
 
 export const workouts = sqliteTable("workouts", {
@@ -16,7 +15,6 @@ export const workouts = sqliteTable("workouts", {
   createdAt: text("created_at")
     .default(sql`(CURRENT_TIMESTAMP)`)
     .notNull(),
-  // updatedAt: '', // ?
 });
 
 export const workoutExercises = sqliteTable("workout_exercises", {
