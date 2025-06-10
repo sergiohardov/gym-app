@@ -1,8 +1,8 @@
 import { useWorkoutValidation } from "@/hooks/useWorkoutValidation";
 import { useWorkoutsCreateReducer } from "@/reducers/useWorkoutsCreateReducer";
-import { Exercise } from "@/types/db";
+import { Exercise, NewSet, NewWorkout, NewWorkoutExercise } from "@/types/db";
 import { WorkoutCreateContextProps } from "@/types/workouts";
-import { getExercises } from "db/queries";
+import { addExerciseToWorkout, addSetToWorkoutExercise, createWorkout, getExercises } from "db/queries";
 import { router } from "expo-router";
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Alert } from "react-native";
@@ -48,49 +48,49 @@ export const WorkoutsCreateProvider = ({ children }: { children: ReactNode }) =>
   }, [state.title, state.exercises, dispatch]);
 
   const handleSave = useCallback(async () => {
-    // if (!isWorkoutValid) {
-    //   Alert.alert("Ошибка", "Заполните все обязательные поля");
-    //   return;
-    // }
+    if (!isWorkoutValid) {
+      Alert.alert("Ошибка", "Заполните все обязательные поля: Название, тренировку и подход");
+      return;
+    }
 
-    // try {
-    //   const validExercises = state.exercises
-    //     .filter(
-    //       (ex) => ex.exercise_id && Array.isArray(ex.sets) && ex.sets.length > 0
-    //     )
-    //     .map((ex) => ({
-    //       ...ex,
-    //       sets: ex.sets.filter(
-    //         (set) =>
-    //           set.weight.trim() &&
-    //           set.reps.trim() &&
-    //           parseFloat(set.weight) > 0 &&
-    //           parseInt(set.reps) > 0
-    //       ),
-    //     }))
-    //     .filter((ex) => ex.sets.length > 0);
+    try {
+      const newWorkout: NewWorkout = {
+        title: state.title,
+      };
 
-    //   const workout = {
-    //     title: state.title.trim(),
-    //     exercises: JSON.stringify(validExercises),
-    //     created_at: new Date().toISOString(),
-    //   };
+      const workout = await createWorkout(newWorkout);
+      if (!workout.id) return;
 
-    //   await db.insert(workouts).values(workout);
+      for (const [exerciseIndex, exercise] of state.exercises.entries()) {
+        const newWorkoutExercise: NewWorkoutExercise = {
+          workoutId: workout.id,
+          exerciseId: exercise.exerciseId,
+          order: exerciseIndex + 1,
+        };
 
-    //   Alert.alert("Успех", "Тренировка сохранена", [
-    //     { text: "OK", onPress: () => router.back() },
-    //   ]);
-    // } catch (error) {
-    //   Alert.alert("Ошибка", "Не удалось сохранить тренировку");
-    //   console.error("Error saving workout:", error);
-    // }
+        const [workoutExercise] = await addExerciseToWorkout(newWorkoutExercise);
+        if (!workoutExercise?.id) continue;
 
-    // await createWorkout({
-    //   title: state.title,
-    // });
+        for (const [setIndex, set] of exercise.sets.entries()) {
+          const newSet: NewSet = {
+            workoutExerciseId: workoutExercise.id,
+            order: setIndex + 1,
+            weight: +set.weight,
+            reps: +set.reps,
+            rest: +set.rest,
+          };
 
-    router.back();
+          await addSetToWorkoutExercise(newSet);
+        }
+      }
+
+      Alert.alert("Успех", "Тренировка сохранена", [{ text: "OK" }]);
+    } catch (error) {
+      Alert.alert("Ошибка", "Не удалось сохранить тренировку");
+      console.error("Error saving workout:", error);
+    } finally {
+      router.back();
+    }
   }, [state, isWorkoutValid]);
 
   const getExerciseTitle = useMemo(
