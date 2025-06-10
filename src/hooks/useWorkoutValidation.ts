@@ -1,21 +1,15 @@
+import { WorkoutCreateState } from "@/types/workouts";
 import { useMemo } from "react";
-import { WorkoutState } from "../reducers/useWorkoutReducer";
 
-export function useWorkoutValidation(state: WorkoutState) {
+export function useWorkoutValidation(state: WorkoutCreateState) {
   return useMemo(() => {
     if (!state.title.trim()) return false;
 
     return state.exercises.some(
       (exercise) =>
-        exercise.exercise_id &&
+        exercise.exerciseId &&
         Array.isArray(exercise.sets) &&
-        exercise.sets.some(
-          (set) =>
-            set.weight.trim() &&
-            set.reps.trim() &&
-            parseFloat(set.weight) > 0 &&
-            parseInt(set.reps) > 0
-        )
+        exercise.sets.some((set) => set.weight.trim() && set.reps.trim() && set.rest.trim())
     );
   }, [state.title, state.exercises]);
 }

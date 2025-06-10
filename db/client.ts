@@ -7,3 +7,4 @@ export const expo_sqlite = openDatabaseSync(DATABASE_NAME, {
   enableChangeListener: true,
 });
 export const db = drizzle(expo_sqlite, { schema });
+db.run("PRAGMA foreign_keys = ON");

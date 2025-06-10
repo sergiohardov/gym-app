@@ -1,7 +1,15 @@
-import { View, Text, FlatList, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 import { Colors } from "@/constants/Colors";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { db } from "db/client";
+import { Ionicons } from "@expo/vector-icons";
+import { removeWorkout } from "db/queries";
 
 export default function WorkoutsTabScreen() {
   const { data } = useLiveQuery(db.query.workouts.findMany());
@@ -13,7 +21,14 @@ export default function WorkoutsTabScreen() {
           style={styles.list}
           contentContainerStyle={styles.listContent}
           data={data}
-          renderItem={({item}) => <Text>{item.title}</Text>}
+          renderItem={({ item }) => (
+            <View style={styles.listItem}>
+              <Text>{item.title}</Text>
+              <TouchableOpacity onPress={async () => await removeWorkout(item.id)}>
+                <Ionicons name="close" size={20} color={"red"} />
+              </TouchableOpacity>
+            </View>
+          )}
         />
       ) : (
         <View style={styles.emptyContainer}>
@@ -35,6 +50,15 @@ const styles = StyleSheet.create({
   },
   listContent: {
     gap: 15,
+  },
+  listItem: {
+    backgroundColor: Colors.primary,
+    padding: 15,
+    borderRadius: 5,
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   emptyContainer: {
     flex: 1,

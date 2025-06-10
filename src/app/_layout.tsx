@@ -1,3 +1,4 @@
+import 'react-native-get-random-values';
 import { db, expo_sqlite } from "db/client";
 import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
 import migrations from "drizzle/migrations";

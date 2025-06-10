@@ -7,14 +7,13 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import React, { useState } from "react";
+import { useState } from "react";
 import { router, Stack } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import Input from "@/components/base/Input";
-import { exercises } from "db/schema";
-import { db } from "db/client";
 import Button from "@/components/base/Button";
+import { createExercise } from "db/queries";
 
 export default function ExerciseCreateModal() {
   const [title, setTitle] = useState("");
@@ -25,7 +24,7 @@ export default function ExerciseCreateModal() {
   };
 
   const handleAdd = async () => {
-    await db.insert(exercises).values({
+    await createExercise({
       title: title,
     });
 
@@ -56,7 +55,7 @@ export default function ExerciseCreateModal() {
               <Text style={styles.inputLabel}>Название</Text>
               <Input value={title} setValue={setTitle} autofocus={true} />
             </View>
-            
+
             <Button title="Добавить" callback={handleAdd} />
           </View>
         </KeyboardAvoidingView>
