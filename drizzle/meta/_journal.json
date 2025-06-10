@@ -5,71 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1749163687174,
-      "tag": "0000_legal_sharon_carter",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1749218972038,
-      "tag": "0001_pale_junta",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1749509320004,
-      "tag": "0002_rich_hellfire_club",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1749509459837,
-      "tag": "0003_lush_frank_castle",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1749509560876,
-      "tag": "0004_blushing_network",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "6",
-      "when": 1749509714881,
-      "tag": "0005_bouncy_mister_fear",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "6",
-      "when": 1749509803665,
-      "tag": "0006_quiet_red_hulk",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "6",
-      "when": 1749509898585,
-      "tag": "0007_quick_green_goblin",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "6",
-      "when": 1749510644276,
-      "tag": "0008_wonderful_harry_osborn",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "6",
-      "when": 1749510904733,
-      "tag": "0009_fine_kate_bishop",
+      "when": 1749563802089,
+      "tag": "0000_busy_gamma_corps",
       "breakpoints": true
     }
   ]
