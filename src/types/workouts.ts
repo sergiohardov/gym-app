@@ -48,4 +48,11 @@ export interface WorkoutCreateContextProps {
   handleSave: () => void;
 }
 
-export interface WorkoutsSessionContextProps {}
+export type WorkoutsSessionState = {};
+
+export type WorkoutsSessionAction = { type: string; payload: any };
+
+export interface WorkoutsSessionContextProps {
+  state: WorkoutsSessionState;
+  dispatch: Dispatch<WorkoutsSessionAction>;
+}

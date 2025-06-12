@@ -1,10 +1,13 @@
+import { useWorkoutsSessionReducer } from "@/reducers/WorkoutsSessionReducer";
 import { WorkoutsSessionContextProps } from "@/types/workouts";
 import { createContext, ReactNode, useContext } from "react";
 
 const Context = createContext<WorkoutsSessionContextProps | undefined>(undefined);
 
 export const WorkoutsSessionProvider = ({ children }: { children: ReactNode }) => {
-  return <Context.Provider value={{}}>{children}</Context.Provider>;
+  const [state, dispatch] = useWorkoutsSessionReducer();
+
+  return <Context.Provider value={{ state, dispatch }}>{children}</Context.Provider>;
 };
 
 export const useWorkoutsSessionContext = () => {
