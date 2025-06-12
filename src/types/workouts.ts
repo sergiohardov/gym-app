@@ -1,6 +1,11 @@
 import { Dispatch } from "react";
 import { Exercise } from "./db";
 
+export type Workout = {
+  title: string;
+  exercises: WorkoutExercise[];
+};
+
 export type WorkoutExercise = {
   _id: string;
   exerciseId: number;
