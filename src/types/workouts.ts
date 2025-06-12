@@ -1,5 +1,6 @@
 import { Dispatch } from "react";
 import { Exercise } from "./db";
+import { workoutSessionMock } from "@/mock/workouts";
 
 export type Workout = {
   title: string;
@@ -48,7 +49,13 @@ export interface WorkoutCreateContextProps {
   handleSave: () => void;
 }
 
-export type WorkoutsSessionState = {};
+export type WorkoutsSessionWorkout = typeof workoutSessionMock;
+export type WorkoutsSessionExercise = WorkoutsSessionWorkout["exercises"][number];
+export type WorkoutsSessionExerciseSet = WorkoutsSessionExercise["sets"][number];
+
+export type WorkoutsSessionState = {
+  workout: WorkoutsSessionWorkout;
+};
 
 export type WorkoutsSessionAction = { type: string; payload: any };
 
