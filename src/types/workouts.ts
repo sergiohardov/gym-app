@@ -47,3 +47,5 @@ export interface WorkoutCreateContextProps {
   handleCancel: () => void;
   handleSave: () => void;
 }
+
+export interface WorkoutsSessionContextProps {}

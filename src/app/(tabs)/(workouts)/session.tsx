@@ -1,10 +1,11 @@
-import { View, Text } from "react-native";
 import React from "react";
+import WorkoutsSessionScreen from "@/components/workouts/session/Screen";
+import { WorkoutsSessionProvider } from "@/contexts/WorkoutsSessionContext";
 
 export default function WorkoutsSession() {
   return (
-    <View>
-      <Text>session</Text>
-    </View>
+    <WorkoutsSessionProvider>
+      <WorkoutsSessionScreen />
+    </WorkoutsSessionProvider>
   );
 }
