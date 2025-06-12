@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm";
 import { Colors } from "@/constants/Colors";
 import ReanimatedSwipeable, { SwipeableMethods } from "react-native-gesture-handler/ReanimatedSwipeable";
 import { removeWorkout } from "db/queries";
+import { router } from "expo-router";
 
 type WorkoutPreviewListItemProps = {
   workoutId: number;
@@ -83,7 +84,7 @@ const WorkoutPreviewListItem = ({ workoutId, onSwipeableWillOpen }: WorkoutPrevi
           </View>
         </View>
 
-        <TouchableOpacity style={styles.playButton} onPress={() => {}}>
+        <TouchableOpacity style={styles.playButton} onPress={() => router.navigate("session")}>
           <Ionicons name="play" size={24} color="white" />
         </TouchableOpacity>
       </View>
