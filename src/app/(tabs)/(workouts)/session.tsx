@@ -1,11 +1,14 @@
-import React from "react";
-import WorkoutsSessionScreen from "@/components/workouts/session/Screen";
-import { WorkoutsSessionProvider } from "@/contexts/WorkoutsSessionContext";
+import ExercisesList from "@/components/workouts/session/ExercisesList";
+import Header from "@/components/workouts/session/Header";
+import Player from "@/components/workouts/session/Player";
+import { View } from "react-native";
 
-export default function WorkoutsSession() {
+export default function WorkoutsSessionScreen() {
   return (
-    <WorkoutsSessionProvider>
-      <WorkoutsSessionScreen />
-    </WorkoutsSessionProvider>
+    <View style={{ flex: 1 }}>
+      <Header />
+      <ExercisesList />
+      <Player />
+    </View>
   );
 }
