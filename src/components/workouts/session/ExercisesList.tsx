@@ -1,10 +1,8 @@
 import { StyleSheet } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
-import { useWorkoutsSessionContext } from "@/contexts/WorkoutsSessionContext";
 import ExercisesListItem from "@/components/workouts/session/ExercisesListItem";
 
 export default function ExercisesList() {
-  const { state } = useWorkoutsSessionContext();
 
   return (
     <FlatList

@@ -53,13 +53,6 @@ export type WorkoutsSessionWorkout = typeof workoutSessionMock;
 export type WorkoutsSessionExercise = WorkoutsSessionWorkout["exercises"][number];
 export type WorkoutsSessionExerciseSet = WorkoutsSessionExercise["sets"][number];
 
-export type WorkoutsSessionState = {
   workout: WorkoutsSessionWorkout;
-};
 
-export type WorkoutsSessionAction = { type: string; payload: any };
-
-export interface WorkoutsSessionContextProps {
-  state: WorkoutsSessionState;
-  dispatch: Dispatch<WorkoutsSessionAction>;
 }
