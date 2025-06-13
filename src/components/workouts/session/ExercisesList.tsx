@@ -1,13 +1,15 @@
 import { StyleSheet } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import ExercisesListItem from "@/components/workouts/session/ExercisesListItem";
+import { useWorkoutsSessionStore } from "@/stores/WorkoutsSessionStore";
 
 export default function ExercisesList() {
+  const { workout } = useWorkoutsSessionStore();
 
   return (
     <FlatList
       contentContainerStyle={styles.container}
-      data={state.workout.exercises}
+      data={workout.exercises}
       renderItem={({ item, index }) => <ExercisesListItem exercise={item} exerciseListIndex={index} />}
       keyExtractor={(item) => item.id.toString()}
     />

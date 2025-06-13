@@ -3,6 +3,7 @@ import React from "react";
 import { WorkoutsSessionExercise, WorkoutsSessionExerciseSet } from "@/types/workouts";
 import { Colors } from "@/constants/Colors";
 import ExerciseSet from "./ExerciseSet";
+import { useWorkoutsSessionStore } from "@/stores/WorkoutsSessionStore";
 
 export default function ExercisesListItem({
   exercise,
@@ -11,8 +12,29 @@ export default function ExercisesListItem({
   exercise: WorkoutsSessionExercise;
   exerciseListIndex: number;
 }) {
-  const isCurrent = false;
-  const canSelect = false;
+  const { status, currentExerciseIndex, isResting, workout, setCurrentExercise, setCurrentSet } =
+    useWorkoutsSessionStore();
+
+  const isCurrent = exerciseListIndex === currentExerciseIndex;
+  const canSelect = status === "playing" || status === "end" || isResting;
+
+  const handleSelectExercise = (exerciseListIndex: number) => {
+    // Можно выбирать упражнение только если тренировка на паузе или не начата, и не во время отдыха
+    if (status === "playing" || status === "end" || isResting) return;
+
+    // Можно выбрать только то упражнение которое не закончено
+    const selectedExercise = workout.exercises[exerciseListIndex];
+    if (selectedExercise.complete) return;
+
+    // Находим первый незавершенный подход
+    const firstIncompleteSetIndex = selectedExercise.sets.findIndex((set) => !set.complete);
+
+    // Обновляем текущий индекс упражнения и сета
+    if (firstIncompleteSetIndex !== -1) {
+      setCurrentExercise(exerciseListIndex);
+      setCurrentSet(firstIncompleteSetIndex);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -23,7 +45,7 @@ export default function ExercisesListItem({
             isCurrent && styles.numberButtonCurrent,
             exercise.complete && styles.numberButtonComplete,
           ]}
-          onPress={() => {}}
+          onPress={() => handleSelectExercise(exerciseListIndex)}
           disabled={canSelect}
         >
           <Text
@@ -41,7 +63,12 @@ export default function ExercisesListItem({
       </View>
 
       {exercise.sets.map((set: WorkoutsSessionExerciseSet, setListIndex: number) => (
-        <ExerciseSet key={"ExerciseSet_" + setListIndex} set={set} setListIndex={setListIndex} />
+        <ExerciseSet
+          key={"ExerciseSet_" + setListIndex}
+          set={set}
+          exerciseListIndex={exerciseListIndex}
+          setListIndex={setListIndex}
+        />
       ))}
     </View>
   );

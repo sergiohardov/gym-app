@@ -2,10 +2,21 @@ import { View, Text, StyleSheet } from "react-native";
 import React from "react";
 import { WorkoutsSessionExerciseSet } from "@/types/workouts";
 import { Colors } from "@/constants/Colors";
+import { useWorkoutsSessionStore } from "@/stores/WorkoutsSessionStore";
 
-export default function ExerciseSet({ set, setListIndex }: { set: WorkoutsSessionExerciseSet; setListIndex: number }) {
-  const isCurrent = false;
-  
+export default function ExerciseSet({
+  set,
+  exerciseListIndex,
+  setListIndex,
+}: {
+  set: WorkoutsSessionExerciseSet;
+  exerciseListIndex: number;
+  setListIndex: number;
+}) {
+  const { currentExerciseIndex, currentSetIndex } = useWorkoutsSessionStore();
+
+  const isCurrent = exerciseListIndex === currentExerciseIndex && setListIndex === currentSetIndex;
+
   return (
     <View style={[styles.container, isCurrent && styles.containerCurrent, set.complete && styles.containerCompleted]}>
       <View style={styles.header}>
