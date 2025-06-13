@@ -12,11 +12,7 @@ export default function ExercisesTabLayout() {
           title: "Тренировки",
           headerRight: () => (
             <TouchableOpacity onPress={() => router.push("create")}>
-              <Ionicons
-                name="add-circle-outline"
-                size={30}
-                color={Colors.secondary}
-              />
+              <Ionicons name="add-circle-outline" size={30} color={Colors.secondary} />
             </TouchableOpacity>
           ),
         }}
@@ -26,6 +22,14 @@ export default function ExercisesTabLayout() {
         name="create"
         options={{
           title: "Новая Тренировка",
+        }}
+      />
+
+      <Stack.Screen
+        name="session"
+        options={{
+          title: "Тренировка",
+          headerBackButtonDisplayMode: "generic",
         }}
       />
     </Stack>
