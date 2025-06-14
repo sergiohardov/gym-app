@@ -28,7 +28,7 @@ const WorkoutPreviewListItem = ({ workoutId, onSwipeableWillOpen }: WorkoutPrevi
             workoutExercises: {
               with: {
                 exercise: true, // Получаем информацию об упражнении
-                sets: true, // Получаем подходы для этого упражнения в тренировке
+                workoutExerciseSets: true, // Получаем подходы для этого упражнения в тренировке
               },
               orderBy: (workoutExercises, { asc }) => [asc(workoutExercises.order)],
             },

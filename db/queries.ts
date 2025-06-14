@@ -1,7 +1,7 @@
 import { asc, eq } from "drizzle-orm";
 import { db } from "./client";
-import { exercises, sets, workoutExercises, workouts } from "./schema";
-import { NewExercise, NewSet, NewWorkout, NewWorkoutExercise, Set, WorkoutExercise } from "@/types/db";
+import { exercises, workoutExercises, workoutExerciseSets, workouts } from "./schema";
+import { NewExercise,  NewWorkout, NewWorkoutExercise,  NewWorkoutExerciseSet,  WorkoutExercise, WorkoutExerciseSet } from "@/types/db";
 
 /* Exercises */
 export const getExercises = async () => {
@@ -58,13 +58,13 @@ export async function removeWorkoutExercise(id: number) {
 
 /* Sets */
 export async function getWorkoutExercisesSets() {
-  return await db.select().from(sets);
+  return await db.select().from(workoutExerciseSets);
 }
 
-export async function addSetToWorkoutExercise(data: NewSet): Promise<Set[]> {
-  return await db.insert(sets).values(data).returning();
+export async function addSetToWorkoutExercise(data: NewWorkoutExerciseSet): Promise<WorkoutExerciseSet[]> {
+  return await db.insert(workoutExerciseSets).values(data).returning();
 }
 
 export async function removeWorkoutExerciseSet(id: number) {
-  return await db.delete(sets).where(eq(sets.id, id));
+  return await db.delete(workoutExerciseSets).where(eq(workoutExerciseSets.id, id));
 }

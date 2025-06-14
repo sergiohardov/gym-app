@@ -1,6 +1,6 @@
 import { useWorkoutValidation } from "@/hooks/useWorkoutValidation";
 import { useWorkoutsCreateReducer } from "@/reducers/useWorkoutsCreateReducer";
-import { Exercise, NewSet, NewWorkout, NewWorkoutExercise } from "@/types/db";
+import { Exercise, NewWorkout, NewWorkoutExerciseSet, NewWorkoutExercise } from "@/types/db";
 import { WorkoutCreateContextProps } from "@/types/workouts";
 import { addExerciseToWorkout, addSetToWorkoutExercise, createWorkout, getExercises } from "db/queries";
 import { router } from "expo-router";
@@ -72,7 +72,7 @@ export const WorkoutsCreateProvider = ({ children }: { children: ReactNode }) =>
         if (!workoutExercise?.id) continue;
 
         for (const [setIndex, set] of exercise.sets.entries()) {
-          const newSet: NewSet = {
+          const newSet: NewWorkoutExerciseSet = {
             workoutExerciseId: workoutExercise.id,
             order: setIndex + 1,
             weight: +set.weight,
