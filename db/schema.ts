@@ -72,7 +72,6 @@ export const historyWorkoutExerciseSets = sqliteTable("history_workout_exercise_
 });
 
 /* Relations */
-// поля/ключи relations появляются при обращении к db с with например в WorkoutPreviewListItem
 export const exercisesRelations = relations(exercises, ({ many }) => ({
   workoutExercise: many(workoutExercises),
   historyWorkoutExercise: many(historyWorkoutExercises),
