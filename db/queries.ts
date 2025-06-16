@@ -2,25 +2,27 @@ import { asc, eq } from "drizzle-orm";
 import { db } from "./client";
 import { exercises, workoutExercises, workoutExerciseSets, workouts } from "./schema";
 import { NewExercise,  NewWorkout, NewWorkoutExercise,  NewWorkoutExerciseSet,  WorkoutExercise, WorkoutExerciseSet } from "@/types/db";
+import {
+  Exercise,
+  NewExercise,
+} from "@/types/db";
 
 /* Exercises */
-export const getExercises = async () => {
+export const getExercises = async (): Promise<Exercise[]> => {
   return await db.select().from(exercises).orderBy(asc(exercises.title));
 };
 
-export const createExercise = async (exerciseData: NewExercise) => {
-  const [exercise] = await db
+export const createExercise = async (exerciseData: NewExercise): Promise<{ id: Exercise["id"] }[]> => {
+  return await db
     .insert(exercises)
     .values({
       ...exerciseData,
     })
-    .returning();
-
-  return exercise;
+    .returning({ id: exercises.id });
 };
 
-export const removeExercise = async (id: number) => {
-  return await db.delete(exercises).where(eq(exercises.id, id));
+export const removeExercise = async (id: Exercise["id"]): Promise<{ id: Exercise["id"] }[]> => {
+  return await db.delete(exercises).where(eq(exercises.id, id)).returning({ id: exercises.id });
 };
 
 /* Workouts */

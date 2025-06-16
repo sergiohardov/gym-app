@@ -1,10 +1,4 @@
-import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { useState } from "react";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
@@ -13,15 +7,33 @@ import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { exercises } from "db/schema";
 import { db } from "db/client";
 import { removeExercise } from "db/queries";
+import { Exercise } from "@/types/db";
 
 export default function ExerciseTabScreen() {
   const [searchInput, setSearchInput] = useState("");
 
   const { data } = useLiveQuery(db.select().from(exercises));
 
-  const filteredData = data?.filter((item) =>
-    item.title.toLowerCase().includes(searchInput.toLowerCase())
-  );
+  const filteredData = data?.filter((item) => item.title.toLowerCase().includes(searchInput.toLowerCase()));
+
+  const handleRemove = async (id: Exercise['id']) => {
+    try {
+      const [response] = await removeExercise(id);
+
+      if (response.id) {
+        // All right
+      } else {
+        throw new Error("UNKNOW");
+      }
+      // TODO: FIX TYPE
+    } catch (error: any) {
+      if (error.message?.includes("UNKNOW")) {
+        Alert.alert("Ошибка", "Произошла ошибка при удалении упражнения.");
+      } else {
+        Alert.alert("Ошибка", "Неизвестная ошибка");
+      }
+    }
+  };
 
   return (
     <View style={style.container}>
@@ -38,18 +50,12 @@ export default function ExerciseTabScreen() {
         renderItem={({ item }) => (
           <View style={style.column}>
             <Text>{item.title}</Text>
-            <TouchableOpacity
-              onPress={async () => await removeExercise(item.id)}
-            >
+            <TouchableOpacity onPress={() => handleRemove(item.id)}>
               <Ionicons name="close" size={20} color={"red"} />
             </TouchableOpacity>
           </View>
         )}
-        ListEmptyComponent={() => (
-          <Text style={style.notFound}>
-            {searchInput ? "Не найдено." : "Нет данных."}
-          </Text>
-        )}
+        ListEmptyComponent={() => <Text style={style.notFound}>{searchInput ? "Не найдено." : "Нет данных."}</Text>}
       />
     </View>
   );
