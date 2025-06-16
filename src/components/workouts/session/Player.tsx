@@ -51,16 +51,14 @@ export default function Player() {
     const restDuration = currentSet.rest;
 
     const currentExercise = workout.exercises[currentExerciseIndex];
-    const nextSetIndex = currentExercise.sets.findIndex(
-      (set, index) => index > currentSetIndex && !set.complete
-    );
+    const nextSetIndex = currentExercise.sets.findIndex((set, index) => index > currentSetIndex && !set.complete);
 
     const anyIncompleteExerciseIndex = workout.exercises.findIndex((exercise) =>
       exercise.sets.some((set) => !set.complete)
     );
 
     if (nextSetIndex !== -1 || anyIncompleteExerciseIndex !== -1) {
-      startRest(restDuration);
+      if (restDuration) startRest(restDuration);
     } else {
       proceedToNextStep();
     }
@@ -68,7 +66,7 @@ export default function Player() {
 
   useEffect(() => {
     if (status !== "start" && status !== "end" && !isResting) {
-      setPlayerTitle(workout.exercises[currentExerciseIndex].name);
+      setPlayerTitle(workout.exercises[currentExerciseIndex].title);
       setPlayerSubtitle(
         formatSetSubtitle(
           currentSetIndex + 1,
@@ -95,21 +93,13 @@ export default function Player() {
       <View style={styles.containerControls}>
         {isShowPlayButton && (
           <TouchableOpacity onPress={handlePlayPause} style={styles.controlButton}>
-            <Ionicons
-              name={status === "playing" ? "pause" : "play"}
-              size={24}
-              color={Colors.primary}
-            />
+            <Ionicons name={status === "playing" ? "pause" : "play"} size={24} color={Colors.primary} />
           </TouchableOpacity>
         )}
 
         {isShowNextButton && (
           <TouchableOpacity onPress={handleNextStep} style={styles.controlButton}>
-            <Ionicons
-              name={isResting ? "play-forward" : "checkmark"}
-              size={24}
-              color={Colors.primary}
-            />
+            <Ionicons name={isResting ? "play-forward" : "checkmark"} size={24} color={Colors.primary} />
           </TouchableOpacity>
         )}
       </View>

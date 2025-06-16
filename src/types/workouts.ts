@@ -1,6 +1,5 @@
 import { Dispatch } from "react";
 import { Exercise } from "./db";
-import { workoutSessionMock } from "@/mock/workouts";
 
 export type WorkoutCreateState = {
   title: string;
@@ -45,13 +44,25 @@ export interface WorkoutCreateContextProps {
   handleSave: () => void;
 }
 
-export type WorkoutsSessionWorkout = typeof workoutSessionMock;
-export type WorkoutsSessionExercise = WorkoutsSessionWorkout["exercises"][number];
-export type WorkoutsSessionExerciseSet = WorkoutsSessionExercise["sets"][number];
+export type WorkoutSession = {
+  title: string;
+  complete: boolean;
+  exercises: {
+    id: number;
+    title: string;
+    complete: boolean;
+    sets: {
+      id: number;
+      complete: boolean;
+      weight: number | null;
+      reps: number | null;
+      rest: number | null;
+    }[];
+  }[];
+};
 
 export interface WorkoutsSessionStore {
-  // Существующие поля
-  workout: WorkoutsSessionWorkout;
+  workout: WorkoutSession;
   currentExerciseIndex: number;
   currentSetIndex: number;
   durationTime: number;

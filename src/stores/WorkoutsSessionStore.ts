@@ -24,7 +24,7 @@ export const useWorkoutsSessionStore = create<WorkoutsSessionStore>((set, get) =
 
       return {
         status: "playing",
-        playerTitle: state.workout.exercises[state.currentExerciseIndex].name,
+        playerTitle: state.workout.exercises[state.currentExerciseIndex].title,
         playerSubtitle: formatSetSubtitle(
           state.currentSetIndex + 1,
           state.workout.exercises[state.currentExerciseIndex].sets.length,
@@ -167,7 +167,7 @@ export const useWorkoutsSessionStore = create<WorkoutsSessionStore>((set, get) =
       const nextSet = currentExercise.sets[nextSetIndex];
       set({
         currentSetIndex: nextSetIndex,
-        playerTitle: currentExercise.name,
+        playerTitle: currentExercise.title,
         playerSubtitle: formatSetSubtitle(nextSetIndex + 1, currentExercise.sets.length, nextSet),
       });
       return;
@@ -191,7 +191,7 @@ export const useWorkoutsSessionStore = create<WorkoutsSessionStore>((set, get) =
         set({
           currentExerciseIndex: nextExerciseIndex,
           currentSetIndex: firstSetIndex,
-          playerTitle: nextExercise.name,
+          playerTitle: nextExercise.title,
           playerSubtitle: formatSetSubtitle(firstSetIndex + 1, nextExercise.sets.length, firstSet),
         });
       }

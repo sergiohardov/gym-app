@@ -1,15 +1,15 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
-import { WorkoutsSessionExercise, WorkoutsSessionExerciseSet } from "@/types/workouts";
 import { Colors } from "@/constants/Colors";
 import ExerciseSet from "./ExerciseSet";
 import { useWorkoutsSessionStore } from "@/stores/WorkoutsSessionStore";
+import { WorkoutSession } from "@/types/workouts";
 
 export default function ExercisesListItem({
   exercise,
   exerciseListIndex,
 }: {
-  exercise: WorkoutsSessionExercise;
+  exercise: WorkoutSession["exercises"][number];
   exerciseListIndex: number;
 }) {
   const { status, currentExerciseIndex, isResting, workout, setCurrentExercise, setCurrentSet } =
@@ -59,10 +59,10 @@ export default function ExercisesListItem({
           </Text>
         </TouchableOpacity>
 
-        <Text style={[styles.title, exercise.complete && styles.titleComplete]}>{exercise.name}</Text>
+        <Text style={[styles.title, exercise.complete && styles.titleComplete]}>{exercise.title}</Text>
       </View>
 
-      {exercise.sets.map((set: WorkoutsSessionExerciseSet, setListIndex: number) => (
+      {exercise.sets.map((set: WorkoutSession["exercises"][number]["sets"][number], setListIndex: number) => (
         <ExerciseSet
           key={"ExerciseSet_" + setListIndex}
           set={set}
