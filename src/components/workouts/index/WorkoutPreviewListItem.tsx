@@ -69,7 +69,7 @@ export default function WorkoutPreviewListItem({ workoutId, onSwipeableWillOpen 
           </View>
         </View>
 
-        <TouchableOpacity style={styles.playButton} onPress={() => router.navigate("session")}>
+        <TouchableOpacity style={styles.playButton} onPress={() => router.push(`session/${workout?.id}`)}>
           <Ionicons name="play" size={24} color="white" />
         </TouchableOpacity>
       </View>

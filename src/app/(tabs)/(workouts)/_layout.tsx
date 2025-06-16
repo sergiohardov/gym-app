@@ -26,7 +26,7 @@ export default function ExercisesTabLayout() {
       />
 
       <Stack.Screen
-        name="session"
+        name="session/[id]"
         options={{
           title: "Тренировка",
           headerBackButtonDisplayMode: "generic",
