@@ -5,113 +5,117 @@ import Button from "@/components/base/Button";
 import { Colors } from "@/constants/Colors";
 import Input from "@/components/base/Input";
 import { useWorkoutsCreateContext } from "@/contexts/WorkoutsCreateContext";
-import { WorkoutExercise } from "@/types/workouts";
+import { WorkoutCreateState } from "@/types/workouts";
 
-const WorkoutsCreateExerciseCard = memo(({ exercise, index }: { exercise: WorkoutExercise; index: number }) => {
-  const { getExerciseTitle, dispatch } = useWorkoutsCreateContext();
+// TODO: Create validation for input only numbers
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>
-          {index + 1}. {getExerciseTitle(exercise.exerciseId)}
-        </Text>
-        <TouchableOpacity
-          style={styles.removeButton}
-          onPress={() =>
+const WorkoutsCreateExerciseCard = memo(
+  ({ exercise, exerciseIndex }: { exercise: WorkoutCreateState["exercises"][number]; exerciseIndex: number }) => {
+    const { getExerciseTitle, dispatch } = useWorkoutsCreateContext();
+
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>
+            {exerciseIndex + 1}. {getExerciseTitle(exercise.exerciseId)}
+          </Text>
+          <TouchableOpacity
+            style={styles.removeButton}
+            onPress={() =>
+              dispatch({
+                type: "REMOVE_EXERCISE",
+                payload: { _id: exercise._id },
+              })
+            }
+          >
+            <Ionicons name="close" size={25} color="red" />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.setsContainer}>
+          {exercise.sets.map((set, setIndex) => (
+            <View key={set._id} style={styles.setRow}>
+              <Text style={styles.setNumber}>#{setIndex + 1}</Text>
+              <Input
+                style={{ flex: 1 }}
+                placeholder="Вес"
+                keyboardType="numeric"
+                value={set.weight}
+                setValue={(value) =>
+                  dispatch({
+                    type: "UPDATE_EXERCISE_SET",
+                    payload: {
+                      exerciseId: exercise._id,
+                      setId: set._id,
+                      field: "weight",
+                      value: value,
+                    },
+                  })
+                }
+              />
+              <Input
+                style={{ flex: 1 }}
+                placeholder="Повторы"
+                keyboardType="numeric"
+                value={set.reps}
+                setValue={(value) =>
+                  dispatch({
+                    type: "UPDATE_EXERCISE_SET",
+                    payload: {
+                      exerciseId: exercise._id,
+                      setId: set._id,
+                      field: "reps",
+                      value,
+                    },
+                  })
+                }
+              />
+              <Input
+                style={{ flex: 1 }}
+                placeholder="Отдых"
+                keyboardType="numeric"
+                value={set.rest}
+                setValue={(value) =>
+                  dispatch({
+                    type: "UPDATE_EXERCISE_SET",
+                    payload: {
+                      exerciseId: exercise._id,
+                      setId: set._id,
+                      field: "rest",
+                      value,
+                    },
+                  })
+                }
+              />
+              <TouchableOpacity
+                style={styles.setRemoveButton}
+                onPress={() =>
+                  dispatch({
+                    type: "REMOVE_EXERCISE_SET",
+                    payload: { exerciseId: exercise._id, setId: set._id },
+                  })
+                }
+              >
+                <Ionicons name="trash-outline" size={16} color="#ff4444" />
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
+
+        <Button
+          title="Добавить подход"
+          icon={<Ionicons name="add" size={24} color={Colors.primary} />}
+          callback={() =>
             dispatch({
-              type: "REMOVE_EXERCISE",
+              type: "ADD_EXERCISE_SET",
               payload: { _id: exercise._id },
             })
           }
-        >
-          <Ionicons name="close" size={25} color="red" />
-        </TouchableOpacity>
+        />
       </View>
-
-      <View style={styles.setsContainer}>
-        {exercise.sets.map((set, index) => (
-          <View key={set._id} style={styles.setRow}>
-            <Text style={styles.setNumber}>{index + 1}</Text>
-            <Input
-              style={{ flex: 1 }}
-              placeholder="Вес"
-              keyboardType="numeric"
-              value={set.weight}
-              setValue={(value) =>
-                dispatch({
-                  type: "UPDATE_EXERCISE_SET",
-                  payload: {
-                    exercise_id: exercise._id,
-                    set_id: set._id,
-                    field: "weight",
-                    value,
-                  },
-                })
-              }
-            />
-            <Input
-              style={{ flex: 1 }}
-              placeholder="Повторы"
-              keyboardType="numeric"
-              value={set.reps}
-              setValue={(value) =>
-                dispatch({
-                  type: "UPDATE_EXERCISE_SET",
-                  payload: {
-                    exercise_id: exercise._id,
-                    set_id: set._id,
-                    field: "reps",
-                    value,
-                  },
-                })
-              }
-            />
-            <Input
-              style={{ flex: 1 }}
-              placeholder="Отдых"
-              keyboardType="numeric"
-              value={set.rest}
-              setValue={(value) =>
-                dispatch({
-                  type: "UPDATE_EXERCISE_SET",
-                  payload: {
-                    exercise_id: exercise._id,
-                    set_id: set._id,
-                    field: "rest",
-                    value,
-                  },
-                })
-              }
-            />
-            <TouchableOpacity
-              style={styles.setRemoveButton}
-              onPress={() =>
-                dispatch({
-                  type: "REMOVE_EXERCISE_SET",
-                  payload: { exercise_id: exercise._id, set_id: set._id },
-                })
-              }
-            >
-              <Ionicons name="trash-outline" size={16} color="#ff4444" />
-            </TouchableOpacity>
-          </View>
-        ))}
-      </View>
-
-      <Button
-        title="Добавить подход"
-        icon={<Ionicons name="add" size={24} color={Colors.primary} />}
-        callback={() =>
-          dispatch({
-            type: "ADD_EXERCISE_SET",
-            payload: { _id: exercise._id },
-          })
-        }
-      />
-    </View>
-  );
-});
+    );
+  }
+);
 
 export default WorkoutsCreateExerciseCard;
 

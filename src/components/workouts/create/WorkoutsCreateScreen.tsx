@@ -1,10 +1,4 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import React from "react";
 import { Colors } from "@/constants/Colors";
 import { Stack } from "expo-router";
@@ -16,8 +10,7 @@ import WorkoutExerciseModal from "@/components/workouts/create/WorkoutsCreateExe
 import WorkoutExerciseCard from "@/components/workouts/create/WorkoutsCreateExerciseCard";
 
 export default function WorkoutsCreateScreen() {
-  const { state, dispatch, handleCancel, handleSave } =
-    useWorkoutsCreateContext();
+  const { state, dispatch, handleCancel, handleSave } = useWorkoutsCreateContext();
 
   return (
     <>
@@ -44,23 +37,15 @@ export default function WorkoutsCreateScreen() {
             <Input
               placeholder="Введите название тренировки"
               value={state.title}
-              setValue={(value) =>
-                dispatch({ type: "SET_TITLE", payload: value })
-              }
+              setValue={(value) => dispatch({ type: "SET_TITLE", payload: value })}
             />
           </View>
 
           <View style={styles.sectionContainer}>
-            <Text style={styles.sectionTitle}>
-              {`Упражнения (${state.exercises.length})`}
-            </Text>
+            <Text style={styles.sectionTitle}>{`Упражнения (${state.exercises.length})`}</Text>
 
-            {state.exercises.map((exercise, index) => (
-              <WorkoutExerciseCard
-                key={exercise._id}
-                exercise={exercise}
-                index={index}
-              />
+            {state.exercises.map((exercise, exerciseIndex) => (
+              <WorkoutExerciseCard key={exercise._id} exercise={exercise} exerciseIndex={exerciseIndex} />
             ))}
 
             <Button

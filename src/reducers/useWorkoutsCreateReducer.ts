@@ -1,4 +1,4 @@
-import { WorkoutCreateAction, WorkoutCreateState, WorkoutExercise, WorkoutExerciseSet } from "@/types/workouts";
+import { WorkoutCreateAction, WorkoutCreateState } from "@/types/workouts";
 import { useReducer } from "react";
 import { v4 as uuidv4 } from "uuid";
 
@@ -15,7 +15,7 @@ function workoutCreateReducer(state: WorkoutCreateState, action: WorkoutCreateAc
     }
 
     case "ADD_EXERCISE": {
-      const newExercise: WorkoutExercise = {
+      const newExercise: WorkoutCreateState["exercises"][number] = {
         _id: uuidv4(),
         exerciseId: action.payload.exerciseId,
         sets: [],
@@ -28,7 +28,7 @@ function workoutCreateReducer(state: WorkoutCreateState, action: WorkoutCreateAc
     }
 
     case "ADD_EXERCISE_SET": {
-      const newSet: WorkoutExerciseSet = {
+      const newSet: WorkoutCreateState["exercises"][number]["sets"][number] = {
         _id: uuidv4(),
         weight: "",
         reps: "",
@@ -47,11 +47,11 @@ function workoutCreateReducer(state: WorkoutCreateState, action: WorkoutCreateAc
       return {
         ...state,
         exercises: state.exercises.map((exercise) =>
-          exercise._id === action.payload.exercise_id
+          exercise._id === action.payload.exerciseId
             ? {
                 ...exercise,
                 sets: exercise.sets.map((set) =>
-                  set._id === action.payload.set_id ? { ...set, [action.payload.field]: action.payload.value } : set
+                  set._id === action.payload.setId ? { ...set, [action.payload.field]: action.payload.value } : set
                 ),
               }
             : exercise
@@ -63,10 +63,10 @@ function workoutCreateReducer(state: WorkoutCreateState, action: WorkoutCreateAc
       return {
         ...state,
         exercises: state.exercises.map((exercise) =>
-          exercise._id === action.payload.exercise_id
+          exercise._id === action.payload.exerciseId
             ? {
                 ...exercise,
-                sets: exercise.sets.filter((set) => set._id !== action.payload.set_id),
+                sets: exercise.sets.filter((set) => set._id !== action.payload.setId),
               }
             : exercise
         ),

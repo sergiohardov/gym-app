@@ -1,48 +1,33 @@
 import React, { useEffect, useRef, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { db } from "db/client";
-import { workouts } from "db/schema";
-import { eq } from "drizzle-orm";
 import { Colors } from "@/constants/Colors";
 import ReanimatedSwipeable, { SwipeableMethods } from "react-native-gesture-handler/ReanimatedSwipeable";
-import { removeWorkout } from "db/queries";
+import { getFullWorkout, removeWorkout } from "db/queries";
 import { router } from "expo-router";
+import { FullWorkout, Workout } from "@/types/db";
+
+// TODO: Replace type props to workouts.ts
+// TODO: When data undefined or broken add logic for catch in use effect
+// TODO: Create link to session workout
 
 type WorkoutPreviewListItemProps = {
-  workoutId: number;
+  workoutId: Workout["id"];
   onSwipeableWillOpen: (ref: SwipeableMethods) => void;
 };
 
-const WorkoutPreviewListItem = ({ workoutId, onSwipeableWillOpen }: WorkoutPreviewListItemProps) => {
+export default function WorkoutPreviewListItem({ workoutId, onSwipeableWillOpen }: WorkoutPreviewListItemProps) {
+  const [workout, setWorkout] = useState<FullWorkout | undefined>(undefined);
   const swipeableRef = useRef(null);
-  const [workout, setWorkout] = useState<any>({}); // TODO: FIX TYPE
 
   useEffect(() => {
     const fetchWorkout = async () => {
       try {
-        // TODO: FIX TYPE
-        const data: any = await db.query.workouts.findFirst({
-          where: eq(workouts.id, workoutId),
-          with: {
-            workoutExercises: {
-              with: {
-                exercise: true, // Получаем информацию об упражнении
-                sets: true, // Получаем подходы для этого упражнения в тренировке
-              },
-              orderBy: (workoutExercises, { asc }) => [asc(workoutExercises.order)],
-            },
-          },
-        });
-
-        setWorkout({
-          id: data.id,
-          title: data.title,
-          createdAt: data.createdAt,
-          exercises: data.workoutExercises,
-        });
+        const data = await getFullWorkout(workoutId);
+        setWorkout(data);
       } catch (error) {}
     };
+
     fetchWorkout();
   }, []);
 
@@ -74,7 +59,7 @@ const WorkoutPreviewListItem = ({ workoutId, onSwipeableWillOpen }: WorkoutPrevi
           <View style={styles.detailsContainer}>
             <View style={styles.detailItem}>
               <Ionicons name="barbell-outline" size={18} color="#666" />
-              <Text style={styles.detailText}>{workout?.exercises?.length} упражнений</Text>
+              <Text style={styles.detailText}>{workout?.workoutExercises.length} упражнений</Text>
             </View>
 
             <View style={styles.detailItem}>
@@ -90,7 +75,7 @@ const WorkoutPreviewListItem = ({ workoutId, onSwipeableWillOpen }: WorkoutPrevi
       </View>
     </ReanimatedSwipeable>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -138,5 +123,3 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
 });
-
-export default WorkoutPreviewListItem;
