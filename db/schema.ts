@@ -78,7 +78,7 @@ export const exercisesRelations = relations(exercises, ({ many }) => ({
 }));
 
 export const workoutsRelations = relations(workouts, ({ many }) => ({
-  workoutExercise: many(workoutExercises),
+  workoutExercises: many(workoutExercises),
   historyWorkout: many(historyWorkouts),
 }));
 
@@ -91,7 +91,7 @@ export const workoutExercisesRelations = relations(workoutExercises, ({ one, man
     fields: [workoutExercises.exerciseId],
     references: [exercises.id],
   }),
-  workoutExerciseSet: many(workoutExerciseSets),
+  workoutExerciseSets: many(workoutExerciseSets),
 }));
 
 export const workoutExerciseSetsRelations = relations(workoutExerciseSets, ({ one }) => ({

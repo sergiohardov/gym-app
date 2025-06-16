@@ -28,3 +28,22 @@ export type NewHistoryWorkoutExercise = typeof historyWorkoutExercises.$inferIns
 
 export type HistoryWorkoutExerciseSet = typeof historyWorkoutExerciseSets.$inferSelect;
 export type NewHistoryWorkoutExerciseSet = typeof historyWorkoutExerciseSets.$inferInsert;
+
+export type FullWorkout = Workout & {
+  workoutExercises: (WorkoutExercise & {
+    workoutExercise: Exercise;
+    workoutExerciseSets: WorkoutExerciseSet[];
+  })[];
+};
+
+export type NewFullWorkout = {
+  title: string;
+  exercises: {
+    exerciseId: Exercise["id"];
+    sets: {
+      weight: number;
+      reps: number;
+      rest: number;
+    }[];
+  }[];
+}

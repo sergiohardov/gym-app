@@ -43,7 +43,7 @@ export type WorkoutCreateAction =
 export interface WorkoutCreateContextProps {
   state: WorkoutCreateState;
   dispatch: Dispatch<WorkoutCreateAction>;
-  dbExercises: Exercise[];
+  exercises: Exercise[];
   getExerciseTitle: (id: number) => string;
   handleCancel: () => void;
   handleSave: () => void;

@@ -12,7 +12,7 @@ import { Colors } from "@/constants/Colors";
 import { useWorkoutsCreateContext } from "@/contexts/WorkoutsCreateContext";
 
 export default function WorkoutsCreateExercisesModal() {
-  const { state, dispatch, dbExercises } = useWorkoutsCreateContext();
+  const { state, dispatch, exercises } = useWorkoutsCreateContext();
 
   return (
     <Modal
@@ -34,7 +34,7 @@ export default function WorkoutsCreateExercisesModal() {
           </View>
 
           <FlatList
-            data={dbExercises}
+            data={exercises}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
               <TouchableOpacity
