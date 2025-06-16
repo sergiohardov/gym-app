@@ -79,7 +79,7 @@ export default function Player() {
 
   useEffect(() => {
     if (isResting) {
-      setPlayerSubtitle(`${restTime} сек`);
+      setPlayerSubtitle(`Отдых: ${restTime} сек`);
     }
   }, [restTime, isResting]);
 

@@ -1,10 +1,14 @@
-import { workoutSessionMock } from "@/mock/workouts";
-import { WorkoutsSessionStore } from "@/types/workouts";
-import { formatSetSubtitle } from "@/utils/format";
+import { WorkoutsSessionStore, WorkoutSession } from "@/types/workouts";
+import { convertFullWorkoutToSession, formatSetSubtitle } from "@/utils/format";
 import { create } from "zustand";
+import { FullWorkout } from "@/types/db";
 
 export const useWorkoutsSessionStore = create<WorkoutsSessionStore>((set, get) => ({
-  workout: workoutSessionMock,
+  workout: {
+    title: "",
+    complete: false,
+    exercises: [],
+  },
   currentExerciseIndex: 0,
   currentSetIndex: 0,
   durationTime: 0,
@@ -15,8 +19,58 @@ export const useWorkoutsSessionStore = create<WorkoutsSessionStore>((set, get) =
   isPlaying: false,
   isWorkoutStart: false,
   isWorkoutEnd: false,
-  playerTitle: "Начните тренировку",
+  playerTitle: "Загрузка тренировки...",
   playerSubtitle: "",
+  isLoading: true,
+
+  loadWorkout: (fullWorkout: FullWorkout) => {
+    const sessionWorkout = convertFullWorkoutToSession(fullWorkout);
+
+    set({
+      workout: sessionWorkout,
+      playerTitle: "Начните тренировку",
+      playerSubtitle: "",
+      isLoading: false,
+      currentExerciseIndex: 0,
+      currentSetIndex: 0,
+      durationTime: 0,
+      restTime: 0,
+      restTimer: null,
+      status: "start",
+      isResting: false,
+      isPlaying: false,
+      isWorkoutStart: false,
+      isWorkoutEnd: false,
+    });
+  },
+
+  resetStore: () => {
+    const state = get();
+    if (state.restTimer) {
+      clearInterval(state.restTimer);
+    }
+
+    set({
+      workout: {
+        title: "",
+        complete: false,
+        exercises: [],
+      },
+      currentExerciseIndex: 0,
+      currentSetIndex: 0,
+      durationTime: 0,
+      restTime: 0,
+      restTimer: null,
+      status: "start",
+      isResting: false,
+      isPlaying: false,
+      isWorkoutStart: false,
+      isWorkoutEnd: false,
+      playerTitle: "Загрузка тренировки...",
+      playerSubtitle: "",
+      isLoading: true,
+    });
+  },
 
   startSession: () => {
     set((state) => {
@@ -81,8 +135,7 @@ export const useWorkoutsSessionStore = create<WorkoutsSessionStore>((set, get) =
       isResting: true,
       restTime: restDuration,
       restTimer,
-      playerTitle: "Отдых",
-      playerSubtitle: `${restDuration} сек`,
+      playerSubtitle: `Отдых: ${restDuration} сек`,
     });
   },
 
