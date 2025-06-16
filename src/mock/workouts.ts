@@ -1,10 +1,10 @@
 export const workoutSessionMock = {
-  name: "Силовая тренировка",
+  title: "Силовая тренировка",
   complete: false,
   exercises: [
     {
       id: 1,
-      name: "Жим штанги лежа",
+      title: "Жим штанги лежа",
       complete: false,
       sets: [
         { id: 1, complete: false, weight: 60, reps: 10, rest: 5 },
@@ -14,7 +14,7 @@ export const workoutSessionMock = {
     },
     {
       id: 2,
-      name: "Приседания со штангой",
+      title: "Приседания со штангой",
       complete: false,
       sets: [
         { id: 1, complete: false, weight: 70, reps: 10, rest: 60 },
@@ -24,7 +24,7 @@ export const workoutSessionMock = {
     },
     {
       id: 3,
-      name: "Тяга штанги в наклоне",
+      title: "Тяга штанги в наклоне",
       complete: false,
       sets: [
         { id: 1, complete: false, weight: 50, reps: 10, rest: 60 },

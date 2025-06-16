@@ -1,15 +1,15 @@
 import { View, Text, StyleSheet } from "react-native";
 import React from "react";
-import { WorkoutsSessionExerciseSet } from "@/types/workouts";
 import { Colors } from "@/constants/Colors";
 import { useWorkoutsSessionStore } from "@/stores/WorkoutsSessionStore";
+import { WorkoutSession } from "@/types/workouts";
 
 export default function ExerciseSet({
   set,
   exerciseListIndex,
   setListIndex,
 }: {
-  set: WorkoutsSessionExerciseSet;
+  set: WorkoutSession["exercises"][number]["sets"][number];
   exerciseListIndex: number;
   setListIndex: number;
 }) {
