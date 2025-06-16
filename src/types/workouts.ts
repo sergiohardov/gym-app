@@ -2,27 +2,18 @@ import { Dispatch } from "react";
 import { Exercise } from "./db";
 import { workoutSessionMock } from "@/mock/workouts";
 
-export type Workout = {
-  title: string;
-  exercises: WorkoutExercise[];
-};
-
-export type WorkoutExercise = {
-  _id: string;
-  exerciseId: number;
-  sets: WorkoutExerciseSet[];
-};
-
-export type WorkoutExerciseSet = {
-  _id: string;
-  weight: string;
-  reps: string;
-  rest: string;
-};
-
 export type WorkoutCreateState = {
   title: string;
-  exercises: WorkoutExercise[];
+  exercises: {
+    _id: string;
+    exerciseId: number;
+    sets: {
+      _id: string;
+      weight: string;
+      reps: string;
+      rest: string;
+    }[];
+  }[];
   modalVisible: boolean;
 };
 
@@ -32,9 +23,14 @@ export type WorkoutCreateAction =
   | { type: "ADD_EXERCISE_SET"; payload: { _id: string } }
   | {
       type: "UPDATE_EXERCISE_SET";
-      payload: { exercise_id: string; set_id: string; field: keyof WorkoutExerciseSet; value: string };
+      payload: {
+        exerciseId: string;
+        setId: string;
+        field: keyof WorkoutCreateState["exercises"][number]["sets"][number];
+        value: WorkoutCreateState["exercises"][number]["sets"][number][keyof WorkoutCreateState["exercises"][number]["sets"][number]];
+      };
     }
-  | { type: "REMOVE_EXERCISE_SET"; payload: { exercise_id: string; set_id: string } }
+  | { type: "REMOVE_EXERCISE_SET"; payload: { exerciseId: string; setId: string } }
   | { type: "REMOVE_EXERCISE"; payload: { _id: string } }
   | { type: "SHOW_MODAL" }
   | { type: "HIDE_MODAL" }

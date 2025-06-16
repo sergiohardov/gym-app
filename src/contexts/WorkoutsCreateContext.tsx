@@ -81,8 +81,8 @@ export const WorkoutsCreateProvider = ({ children }: { children: ReactNode }) =>
   const getExerciseTitle = useMemo(
     () =>
       (id: number): string => {
-        const exercise1 = exercises.find((item) => item.id === id);
-        return exercise1 ? exercise1.title : "";
+        const exercise = exercises.find((item) => item.id === id);
+        return exercise ? exercise.title : "";
       },
     [exercises]
   );
