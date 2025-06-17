@@ -69,6 +69,7 @@ export const historyWorkoutExerciseSets = sqliteTable("history_workout_exercise_
   order: integer("order").notNull(),
   weight: integer("weight"),
   reps: integer("reps"),
+  rest: integer("rest"), // Исправлено: убрана одинарная кавычка
 });
 
 /* Relations */

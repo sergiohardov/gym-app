@@ -1,0 +1,1 @@
+ALTER TABLE `history_workout_exercise_sets` ADD `rest` integer;
