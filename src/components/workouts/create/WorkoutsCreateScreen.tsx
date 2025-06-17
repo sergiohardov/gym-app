@@ -4,16 +4,17 @@ import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useWorkoutsCreateContext } from "@/contexts/WorkoutsCreateContext";
 import Button from "@/components/base/Button";
-import WorkoutExerciseModal from "@/components/workouts/create/WorkoutsCreateExercisesModal";
 import WorkoutExerciseCard from "@/components/workouts/create/WorkoutsCreateExerciseCard";
 import Header from "./Header";
 import Input from "@/components/base/Input";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import WorkoutsCreateExercisesBottomSheet from "@/components/workouts/create/WorkoutsCreateExercisesBottomSheet";
 
 export default function WorkoutsCreateScreen() {
   const { state, dispatch } = useWorkoutsCreateContext();
 
   return (
-    <>
+    <GestureHandlerRootView style={styles.container}>
       <Header />
 
       <SafeAreaView style={styles.mainContainer}>
@@ -85,12 +86,15 @@ export default function WorkoutsCreateScreen() {
         </ScrollView>
       </SafeAreaView>
 
-      <WorkoutExerciseModal />
-    </>
+      <WorkoutsCreateExercisesBottomSheet />
+    </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   mainContainer: {
     flex: 1,
   },
