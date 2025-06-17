@@ -12,6 +12,7 @@ export default function Header() {
       options={{
         title: "",
         headerTransparent: true,
+        headerShadowVisible: true,
         headerLeft: () => (
           <TouchableOpacity onPress={handleCancel} style={styles.closeButton}>
             <Ionicons name="close" size={24} color={Colors.secondary} />
@@ -30,7 +31,7 @@ export default function Header() {
 
 const styles = StyleSheet.create({
   closeButton: {
-    padding: 5,
+    padding: 4,
     backgroundColor: "rgba(255, 255, 255, 0.9)",
     borderRadius: 20,
     shadowColor: "#000",
