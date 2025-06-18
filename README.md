@@ -1,5 +1,20 @@
 # GYM APP
 
+## Стек
+Технологии
+- JavaScript
+- TypeScript
+- React Native (Expo)
+- SQLite
+
+Библиотеки 
+- UUID
+- Async Storage
+- Zustand
+- Drizzle
+- Gesture Handler
+- Bottom Sheet
+
 ## Комманды
 
 Что бы развернуть приложение нужно сначала установить пребилд
