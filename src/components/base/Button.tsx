@@ -1,4 +1,4 @@
-import { Text, StyleSheet, TouchableOpacity } from "react-native";
+import { Text, StyleSheet, TouchableOpacity, StyleProp, ViewStyle } from "react-native";
 import React, { ReactNode } from "react";
 import { Colors } from "@/constants/Colors";
 
@@ -6,16 +6,18 @@ export default function Button({
   title = "",
   icon = null,
   disabled,
+  style = {},
   callback,
 }: {
   title?: string;
   icon?: ReactNode;
   disabled?: boolean;
+  style?: StyleProp<ViewStyle>;
   callback: () => void;
 }) {
   return (
     <TouchableOpacity
-      style={[styles.button, disabled && styles.disabled]}
+      style={[styles.button, disabled && styles.disabled, style]}
       onPress={callback}
       disabled={disabled}
     >
