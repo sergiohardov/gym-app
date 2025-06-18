@@ -1,5 +1,5 @@
 import { Dispatch } from "react";
-import { Exercise, FullWorkout } from "./db";
+import { Exercise, FullTemplateWorkout } from "./db";
 
 export type WorkoutCreateState = {
   title: string;
@@ -77,7 +77,7 @@ export interface WorkoutsSessionStore {
   playerSubtitle: string;
   isLoading: boolean;
 
-  loadWorkout: (fullWorkout: FullWorkout) => void;
+  loadWorkout: (fullWorkout: FullTemplateWorkout) => void;
   resetStore: () => void;
   startSession: () => void;
   togglePlayPause: () => void;

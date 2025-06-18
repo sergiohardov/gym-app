@@ -1,49 +1,36 @@
-import {
-  exercises,
-  historyWorkoutExercises,
-  historyWorkoutExerciseSets,
-  historyWorkouts,
-  workoutExercises,
-  workoutExerciseSets,
-  workouts,
-} from "db/schema";
+import { exercises, templateExercises, templateSets, templateWorkouts } from "db/schema";
 
 export type Exercise = typeof exercises.$inferSelect;
+export type TemplateWorkout = typeof templateWorkouts.$inferSelect;
+export type TemplateExercise = typeof templateExercises.$inferSelect;
+export type TemplateSet = typeof templateSets.$inferSelect;
+
 export type NewExercise = typeof exercises.$inferInsert;
+export type NewTemplateWorkout = typeof templateWorkouts.$inferInsert;
+export type NewTemplateExercise = typeof templateExercises.$inferInsert;
+export type NewTemplateSet = typeof templateSets.$inferInsert;
 
-export type Workout = typeof workouts.$inferSelect;
-export type NewWorkout = typeof workouts.$inferInsert;
 
-export type WorkoutExercise = typeof workoutExercises.$inferSelect;
-export type NewWorkoutExercise = typeof workoutExercises.$inferInsert;
+// Variant 1
+// Вместо создания собственных интерфейсов
+// export type FullTemplateWorkout = Awaited<ReturnType<typeof TemplateWorkoutsModel.getFullById>>;
 
-export type WorkoutExerciseSet = typeof workoutExerciseSets.$inferSelect;
-export type NewWorkoutExerciseSet = typeof workoutExerciseSets.$inferInsert;
-
-export type HistoryWorkout = typeof historyWorkouts.$inferSelect;
-export type NewHistoryWorkout = typeof historyWorkouts.$inferInsert;
-
-export type HistoryWorkoutExercise = typeof historyWorkoutExercises.$inferSelect;
-export type NewHistoryWorkoutExercise = typeof historyWorkoutExercises.$inferInsert;
-
-export type HistoryWorkoutExerciseSet = typeof historyWorkoutExerciseSets.$inferSelect;
-export type NewHistoryWorkoutExerciseSet = typeof historyWorkoutExerciseSets.$inferInsert;
-
-export type FullWorkout = Workout & {
-  workoutExercises: (WorkoutExercise & {
-    workoutExercise: Exercise;
-    workoutExerciseSets: WorkoutExerciseSet[];
+// Variant 2
+export type FullTemplateWorkout = TemplateWorkout & {
+  templateExercises: (TemplateExercise & {
+    exercise: Exercise;
+    sets: TemplateSet[];
   })[];
 };
 
-export type NewFullWorkout = {
-  title: string;
+export type NewFullTemplateWorkout = {
+  name: string;
   exercises: {
     exerciseId: Exercise["id"];
     sets: {
-      weight: number;
-      reps: number;
-      rest: number;
+      weight: number | null;
+      reps: number | null;
+      rest: number | null;
     }[];
   }[];
-}
+};

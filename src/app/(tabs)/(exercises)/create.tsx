@@ -14,7 +14,7 @@ import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import Input from "@/components/base/Input";
 import Button from "@/components/base/Button";
-import { createExercise } from "db/queries";
+import { ExercisesModel } from "db/models/exercises";
 
 export default function ExerciseCreateModal() {
   const [title, setTitle] = useState("");
@@ -31,9 +31,7 @@ export default function ExerciseCreateModal() {
     }
 
     try {
-      const [response] = await createExercise({
-        title: title,
-      });
+      const [response] = await ExercisesModel.create({ name: title });
 
       if (response.id) {
         setTitle("");

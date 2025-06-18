@@ -2,11 +2,11 @@ import ExercisesList from "@/components/workouts/session/ExercisesList";
 import Header from "@/components/workouts/session/Header";
 import Player from "@/components/workouts/session/Player";
 import { useWorkoutsSessionStore } from "@/stores/WorkoutsSessionStore";
-import { getFullWorkout } from "db/queries";
 import { useLocalSearchParams, router } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, View, Text, StyleSheet, Alert } from "react-native";
 import { Colors } from "@/constants/Colors";
+import { TemplateWorkoutsModel } from "db/models/template-workouts";
 
 export default function WorkoutsSessionScreen() {
   const { id } = useLocalSearchParams();
@@ -29,7 +29,7 @@ export default function WorkoutsSessionScreen() {
           return;
         }
 
-        const workout = await getFullWorkout(workoutId);
+        const workout = await TemplateWorkoutsModel.getFullById(workoutId);
         
         if (!workout) {
           setError("Тренировка не найдена");
@@ -37,7 +37,7 @@ export default function WorkoutsSessionScreen() {
         }
 
         // Проверяем, что тренировка содержит упражнения
-        if (!workout.workoutExercises || workout.workoutExercises.length === 0) {
+        if (!workout.templateExercises || workout.templateExercises.length === 0) {
           setError("В тренировке нет упражнений");
           return;
         }

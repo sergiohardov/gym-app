@@ -1,4 +1,4 @@
-import { FullWorkout } from "@/types/db";
+import { FullTemplateWorkout } from "@/types/db";
 import { WorkoutSession } from "@/types/workouts";
 
 export const formatTime = (seconds: number): string => {
@@ -15,15 +15,15 @@ export const formatSetSubtitle = (
   return `Подход ${setCurrent}/${setTotal} • ${set.weight}кг × ${set.reps}`;
 };
 
-export const convertFullWorkoutToSession = (fullWorkout: FullWorkout): WorkoutSession => {
+export const convertFullWorkoutToSession = (fullWorkout: FullTemplateWorkout): WorkoutSession => {
   return {
-    title: fullWorkout.title,
+    title: fullWorkout.name,
     complete: false,
-    exercises: fullWorkout.workoutExercises.map((workoutExercise) => ({
-      id: workoutExercise.workoutExercise.id,
-      title: workoutExercise.workoutExercise.title,
+    exercises: fullWorkout.templateExercises.map((workoutExercise) => ({
+      id: workoutExercise.exercise.id,
+      title: workoutExercise.exercise.name,
       complete: false,
-      sets: workoutExercise.workoutExerciseSets.map((set) => ({
+      sets: workoutExercise.sets.map((set) => ({
         id: set.id,
         complete: false,
         weight: set.weight,

@@ -12,7 +12,7 @@ export default function WorkoutsCreateExercisesBottomSheet() {
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   const filteredExercises = exercises.filter((exercise) =>
-    exercise.title.toLowerCase().includes(searchQuery.toLowerCase())
+    exercise.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleSelectExercise = useCallback(
@@ -61,7 +61,7 @@ export default function WorkoutsCreateExercisesBottomSheet() {
           <View style={styles.exerciseIconContainer}>
             <Ionicons name="fitness" size={20} color={Colors.primary} />
           </View>
-          <Text style={styles.listOptionText}>{item.title}</Text>
+          <Text style={styles.listOptionText}>{item.name}</Text>
         </View>
         <Ionicons name="chevron-forward" size={18} color={Colors.secondary} />
       </TouchableOpacity>

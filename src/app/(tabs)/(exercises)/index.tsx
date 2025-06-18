@@ -6,19 +6,19 @@ import Input from "@/components/base/Input";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { exercises } from "db/schema";
 import { db } from "db/client";
-import { removeExercise } from "db/queries";
 import { Exercise } from "@/types/db";
+import { ExercisesModel } from "db/models/exercises";
 
 export default function ExerciseTabScreen() {
   const [searchInput, setSearchInput] = useState("");
 
   const { data } = useLiveQuery(db.select().from(exercises));
 
-  const filteredData = data?.filter((item) => item.title.toLowerCase().includes(searchInput.toLowerCase()));
+  const filteredData = data?.filter((item) => item.name.toLowerCase().includes(searchInput.toLowerCase()));
 
-  const handleRemove = async (id: Exercise['id']) => {
+  const handleRemove = async (id: Exercise["id"]) => {
     try {
-      const [response] = await removeExercise(id);
+      const [response] = await ExercisesModel.remove(id);
 
       if (response.id) {
         // All right
@@ -49,7 +49,7 @@ export default function ExerciseTabScreen() {
         data={filteredData}
         renderItem={({ item }) => (
           <View style={style.column}>
-            <Text>{item.title}</Text>
+            <Text>{item.name}</Text>
             <TouchableOpacity onPress={() => handleRemove(item.id)}>
               <Ionicons name="close" size={20} color={"red"} />
             </TouchableOpacity>

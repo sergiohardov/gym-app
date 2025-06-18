@@ -2,7 +2,8 @@ import { useWorkoutValidation } from "@/hooks/useWorkoutValidation";
 import { useWorkoutsCreateReducer } from "@/reducers/useWorkoutsCreateReducer";
 import { Exercise } from "@/types/db";
 import { WorkoutCreateContextProps } from "@/types/workouts";
-import { getExercises, createFullWorkout } from "db/queries";
+import { ExercisesModel } from "db/models/exercises";
+import { TemplateWorkoutsModel } from "db/models/template-workouts";
 import { router } from "expo-router";
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Alert } from "react-native";
@@ -18,7 +19,7 @@ export const WorkoutsCreateProvider = ({ children }: { children: ReactNode }) =>
   useEffect(() => {
     const fetchExercises = async () => {
       try {
-        const data = await getExercises();
+        const data = await ExercisesModel.getAll();
         setExercises(data);
       } catch (error) {
         Alert.alert("Ошибка", "Произошла ошибка при получении упражнений.");
@@ -56,8 +57,8 @@ export const WorkoutsCreateProvider = ({ children }: { children: ReactNode }) =>
     }
 
     try {
-      const workout = await createFullWorkout({
-        title: state.title,
+      const workout = await TemplateWorkoutsModel.createFull({
+        name: state.title,
         exercises: state.exercises.map((exercise) => ({
           exerciseId: exercise.exerciseId,
           sets: exercise.sets.map((set) => ({
@@ -82,7 +83,7 @@ export const WorkoutsCreateProvider = ({ children }: { children: ReactNode }) =>
     () =>
       (id: number): string => {
         const exercise = exercises.find((item) => item.id === id);
-        return exercise ? exercise.title : "";
+        return exercise ? exercise.name : "";
       },
     [exercises]
   );

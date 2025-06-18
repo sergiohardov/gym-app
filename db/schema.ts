@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
 
+/* Tables */
 export const exercises = sqliteTable("exercises", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull().unique(),
@@ -10,7 +11,7 @@ export const exercises = sqliteTable("exercises", {
     .notNull(),
 });
 
-export const workouts = sqliteTable("workouts", {
+export const templateWorkouts = sqliteTable("template_workouts", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   createdAt: text("created_at")
@@ -18,121 +19,112 @@ export const workouts = sqliteTable("workouts", {
     .notNull(),
 });
 
-export const sessions = sqliteTable("sessions", {
+export const templateExercises = sqliteTable("template_exercises", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  workoutId: integer("workout_id").references(() => workouts.id, { onDelete: "set null" }),
-  name: text("name").notNull(),
-  startedAt: text("started_at").notNull(),
-  completedAt: text("completed_at"),
-  duration: integer("duration"), // в секундах
-  notes: text("notes"),
-  createdAt: text("created_at")
-    .default(sql`(CURRENT_TIMESTAMP)`)
-    .notNull(),
-});
-
-/* Junction Tables */
-export const workoutExercises = sqliteTable("workout_exercises", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  workoutId: integer("workout_id")
+  templateWorkoutId: integer("template_workout_id")
     .notNull()
-    .references(() => workouts.id, { onDelete: "cascade" }),
+    .references(() => templateWorkouts.id, { onDelete: "cascade" }),
   exerciseId: integer("exercise_id")
     .notNull()
     .references(() => exercises.id, { onDelete: "cascade" }),
-  position: integer("position").notNull(), // более понятное название чем "order"
+  order: integer("order").notNull(),
 });
 
-export const sets = sqliteTable("sets", {
+export const templateSets = sqliteTable("template_sets", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  workoutExerciseId: integer("workout_exercise_id")
+  templateExerciseId: integer("template_exercise_id")
     .notNull()
-    .references(() => workoutExercises.id, { onDelete: "cascade" }),
-  position: integer("position").notNull(),
-  weight: integer("weight"), // в граммах для точности
-  reps: integer("reps"),
-  restSeconds: integer("rest_seconds"), // явное указание единиц измерения
-});
-
-/* History Tables */
-
-export const sessionExercises = sqliteTable("session_exercises", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  sessionId: integer("session_id")
-    .notNull()
-    .references(() => sessions.id, { onDelete: "cascade" }),
-  exerciseId: integer("exercise_id").references(() => exercises.id, { onDelete: "set null" }),
-  name: text("name").notNull(), // сохраняем название на случай удаления упражнения
-  position: integer("position").notNull(),
-  notes: text("notes"),
-});
-
-export const sessionSets = sqliteTable("session_sets", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  sessionExerciseId: integer("session_exercise_id")
-    .notNull()
-    .references(() => sessionExercises.id, { onDelete: "cascade" }),
-  position: integer("position").notNull(),
+    .references(() => templateExercises.id, { onDelete: "cascade" }),
+  order: integer("order").notNull(),
   weight: integer("weight"),
   reps: integer("reps"),
-  restSeconds: integer("rest_seconds"),
-  completed: integer("completed", { mode: "boolean" }).default(false), // отметка выполнения
-  notes: text("notes"),
+  rest: integer("rest"),
+});
+
+export const historyWorkouts = sqliteTable("history_workouts", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  templateWorkoutId: integer("template_workout_id").references(() => templateWorkouts.id, { onDelete: "set null" }),
+  name: text("name").notNull(), // save workout name if workout removed
+  duration: integer("duration"),
+  createdAt: text("created_at")
+    .default(sql`(CURRENT_TIMESTAMP)`)
+    .notNull(),
+});
+
+export const historyExercises = sqliteTable("history_exercises", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  historyWorkoutId: integer("history_workout_id")
+    .notNull()
+    .references(() => historyWorkouts.id, { onDelete: "cascade" }),
+  exerciseId: integer("exercise_id").references(() => exercises.id, { onDelete: "set null" }),
+  name: text("name").notNull(), // save exercise name if exercise removed
+  order: integer("order").notNull(),
+});
+
+export const historySets = sqliteTable("history_sets", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  historyExerciseId: integer("history_exercise_id")
+    .notNull()
+    .references(() => historyExercises.id, { onDelete: "cascade" }),
+  order: integer("order").notNull(),
+  weight: integer("weight"),
+  reps: integer("reps"),
+  rest: integer("rest"),
 });
 
 /* Relations */
 export const exercisesRelations = relations(exercises, ({ many }) => ({
-  workoutExercises: many(workoutExercises),
-  sessionExercises: many(sessionExercises),
+  templateExercises: many(templateExercises),
+  historyExercises: many(historyExercises),
 }));
 
-export const workoutsRelations = relations(workouts, ({ many }) => ({
-  exercises: many(workoutExercises),
-  sessions: many(sessions),
+export const templateWorkoutsRelations = relations(templateWorkouts, ({ many }) => ({
+  templateExercises: many(templateExercises),
+  historyWorkouts: many(historyWorkouts),
 }));
 
-export const workoutExercisesRelations = relations(workoutExercises, ({ one, many }) => ({
-  workout: one(workouts, {
-    fields: [workoutExercises.workoutId],
-    references: [workouts.id],
+export const templateExercisesRelations = relations(templateExercises, ({ one, many }) => ({
+  workout: one(templateWorkouts, {
+    fields: [templateExercises.templateWorkoutId],
+    references: [templateWorkouts.id],
   }),
   exercise: one(exercises, {
-    fields: [workoutExercises.exerciseId],
+    fields: [templateExercises.exerciseId],
     references: [exercises.id],
   }),
-  sets: many(sets),
+  sets: many(templateSets),
 }));
 
-export const setsRelations = relations(sets, ({ one }) => ({
-  workoutExercise: one(workoutExercises, {
-    fields: [sets.workoutExerciseId],
-    references: [workoutExercises.id],
+export const templateSetsRelations = relations(templateSets, ({ one }) => ({
+  exercise: one(templateExercises, {
+    fields: [templateSets.templateExerciseId],
+    references: [templateExercises.id],
   }),
 }));
 
-export const sessionsRelations = relations(sessions, ({ one, many }) => ({
-  workout: one(workouts, {
-    fields: [sessions.workoutId],
-    references: [workouts.id],
+export const historyWorkoutsRelations = relations(historyWorkouts, ({ one, many }) => ({
+  workout: one(templateWorkouts, {
+    fields: [historyWorkouts.templateWorkoutId],
+    references: [templateWorkouts.id],
   }),
-  exercises: many(sessionExercises),
+  exercises: many(historyExercises),
 }));
 
-export const sessionExercisesRelations = relations(sessionExercises, ({ one, many }) => ({
-  session: one(sessions, {
-    fields: [sessionExercises.sessionId],
-    references: [sessions.id],
+export const historyExercisesRelations = relations(historyExercises, ({ one, many }) => ({
+  workout: one(historyWorkouts, {
+    fields: [historyExercises.historyWorkoutId],
+    references: [historyWorkouts.id],
   }),
   exercise: one(exercises, {
-    fields: [sessionExercises.exerciseId],
+    fields: [historyExercises.exerciseId],
     references: [exercises.id],
   }),
-  sets: many(sessionSets),
+  sets: many(historySets),
 }));
 
-export const sessionSetsRelations = relations(sessionSets, ({ one }) => ({
-  sessionExercise: one(sessionExercises, {
-    fields: [sessionSets.sessionExerciseId],
-    references: [sessionExercises.id],
+export const sessionSetsRelations = relations(historySets, ({ one }) => ({
+  exercise: one(historyExercises, {
+    fields: [historySets.historyExerciseId],
+    references: [historyExercises.id],
   }),
 }));
