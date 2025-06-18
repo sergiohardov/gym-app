@@ -1,9 +1,9 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
-import { View, Text, TouchableOpacity, FlatList, StyleSheet, TextInput } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 import { useWorkoutsCreateContext } from "@/contexts/WorkoutsCreateContext";
-import BottomSheet, { BottomSheetView, BottomSheetBackdrop, BottomSheetFlatList } from "@gorhom/bottom-sheet";
+import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import Input from "@/components/base/Input";
 import { Exercise } from "@/types/db";
 import Button from "@/components/base/Button";
@@ -11,11 +11,13 @@ import Button from "@/components/base/Button";
 export default function WorkoutsCreateExercisesBottomSheet() {
   const { state, dispatch, exercises } = useWorkoutsCreateContext();
   const [searchQuery, setSearchQuery] = useState("");
-  const bottomSheetRef = useRef<BottomSheet>(null);
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const filteredExercises = exercises.filter((exercise) =>
     exercise.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const snapPoints = ["60%", "85%"];
 
   const handleSelectExercise = useCallback(
     (exercise: Exercise) => {
@@ -31,7 +33,7 @@ export default function WorkoutsCreateExercisesBottomSheet() {
   const handleClose = useCallback(() => {
     dispatch({ type: "HIDE_MODAL" });
     setSearchQuery("");
-    bottomSheetRef.current?.close();
+    bottomSheetModalRef.current?.dismiss();
   }, [dispatch]);
 
   const handleCreateExercise = useCallback(() => {
@@ -48,13 +50,21 @@ export default function WorkoutsCreateExercisesBottomSheet() {
     [dispatch]
   );
 
+  // Используем useEffect для открытия/закрытия модального окна
   useEffect(() => {
     if (state.modalVisible) {
-      bottomSheetRef.current?.snapToIndex(0); // Open to first snap point (60%)
+      bottomSheetModalRef.current?.present();
     } else {
-      bottomSheetRef.current?.close();
+      bottomSheetModalRef.current?.dismiss();
     }
   }, [state.modalVisible]);
+
+  const renderBackdrop = useCallback(
+    (props: any) => (
+      <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={0} opacity={0.5} onPress={handleClose} />
+    ),
+    [handleClose]
+  );
 
   const renderListItem = useCallback(
     ({ item, index }: { item: Exercise; index: number }) => (
@@ -85,21 +95,18 @@ export default function WorkoutsCreateExercisesBottomSheet() {
         </Text>
       </View>
     ),
-    [searchQuery, handleCreateExercise]
+    [searchQuery]
   );
 
   const renderItemSeparator = useCallback(() => <View style={styles.separator} />, []);
 
   return (
-    <BottomSheet
-      ref={bottomSheetRef}
+    <BottomSheetModal
+      ref={bottomSheetModalRef}
       onChange={handleSheetChanges}
-      snapPoints={["60%", "85%"]}
+      snapPoints={snapPoints}
       enablePanDownToClose
-      index={-1}
-      backdropComponent={(props) => (
-        <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={0} opacity={0.5} onPress={handleClose} />
-      )}
+      backdropComponent={renderBackdrop}
       backgroundStyle={styles.bottomSheetBackground}
       handleIndicatorStyle={styles.bottomSheetIndicator}
     >
@@ -137,7 +144,7 @@ export default function WorkoutsCreateExercisesBottomSheet() {
         contentContainerStyle={styles.listContainer}
         style={styles.listStyle}
       />
-    </BottomSheet>
+    </BottomSheetModal>
   );
 }
 
@@ -234,8 +241,6 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: Colors.surface,
   },
-
-  // Empty State Styles
   emptyState: {
     alignItems: "center",
     justifyContent: "center",
@@ -255,9 +260,5 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 20,
     maxWidth: 280,
-  },
-  createFromEmptyButton: {
-    marginTop: 8,
-    paddingHorizontal: 20,
   },
 });

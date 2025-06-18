@@ -1,4 +1,13 @@
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform, Keyboard } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
+} from "react-native";
 import React from "react";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
@@ -7,7 +16,6 @@ import Button from "@/components/base/Button";
 import WorkoutExerciseCard from "@/components/workouts/create/WorkoutsCreateExerciseCard";
 import Header from "./Header";
 import Input from "@/components/base/Input";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import WorkoutsCreateExercisesBottomSheet from "@/components/workouts/create/WorkoutsCreateExercisesBottomSheet";
 import WorkoutsCreateAddExerciseBottomSheet from "./WorkoutsCreateAddExerciseBottomSheet";
 
@@ -15,7 +23,7 @@ export default function WorkoutsCreateScreen() {
   const { state, dispatch } = useWorkoutsCreateContext();
 
   return (
-    <GestureHandlerRootView style={styles.container}>
+    <View style={styles.container}>
       <Header />
 
       <SafeAreaView style={styles.mainContainer}>
@@ -90,8 +98,8 @@ export default function WorkoutsCreateScreen() {
                   title="Добавить упражнение"
                   icon={<Ionicons name="add" size={20} color={Colors.primary} />}
                   callback={() => {
-                    Keyboard.dismiss()
-                    dispatch({ type: "SHOW_MODAL" })
+                    Keyboard.dismiss();
+                    dispatch({ type: "SHOW_MODAL" });
                   }}
                 />
               </View>
@@ -102,7 +110,7 @@ export default function WorkoutsCreateScreen() {
 
       <WorkoutsCreateExercisesBottomSheet />
       <WorkoutsCreateAddExerciseBottomSheet />
-    </GestureHandlerRootView>
+    </View>
   );
 }
 

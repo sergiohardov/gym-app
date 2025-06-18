@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 import { useWorkoutsCreateContext } from "@/contexts/WorkoutsCreateContext";
-import BottomSheet, { BottomSheetView, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
+import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
 import Input from "@/components/base/Input";
 import Button from "@/components/base/Button";
 import { ExercisesModel } from "db/models/exercises";
@@ -12,11 +12,14 @@ export default function WorkoutsCreateAddExerciseBottomSheet() {
   const { state, dispatch, refetchExercises } = useWorkoutsCreateContext();
   const [title, setTitle] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const bottomSheetRef = useRef<BottomSheet>(null);
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+
+  const snapPoints = ["40%"];
 
   const handleClose = useCallback(() => {
     dispatch({ type: "HIDE_CREATE_EXERCISE_MODAL" });
     setTitle("");
+    bottomSheetModalRef.current?.dismiss();
   }, [dispatch]);
 
   const handleSheetChanges = useCallback(
@@ -70,22 +73,26 @@ export default function WorkoutsCreateAddExerciseBottomSheet() {
 
   useEffect(() => {
     if (state.createExerciseModalVisible) {
-      bottomSheetRef.current?.snapToIndex(0);
+      bottomSheetModalRef.current?.present();
     } else {
-      bottomSheetRef.current?.close();
+      bottomSheetModalRef.current?.dismiss();
     }
   }, [state.createExerciseModalVisible]);
 
+  const renderBackdrop = useCallback(
+    (props: any) => (
+      <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={0} opacity={0.5} onPress={handleClose} />
+    ),
+    [handleClose]
+  );
+
   return (
-    <BottomSheet
-      ref={bottomSheetRef}
+    <BottomSheetModal
+      ref={bottomSheetModalRef}
       onChange={handleSheetChanges}
-      snapPoints={["40%"]}
+      snapPoints={snapPoints}
       enablePanDownToClose
-      index={-1}
-      backdropComponent={(props) => (
-        <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={0} opacity={0.5} onPress={handleClose} />
-      )}
+      backdropComponent={renderBackdrop}
       backgroundStyle={styles.bottomSheetBackground}
       handleIndicatorStyle={styles.bottomSheetIndicator}
     >
@@ -103,7 +110,7 @@ export default function WorkoutsCreateAddExerciseBottomSheet() {
         <View style={styles.contentContainer}>
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Название упражнения</Text>
-            <Input placeholder="Например: Жим штанги лежа" value={title} setValue={setTitle}  />
+            <Input placeholder="Например: Жим штанги лежа" value={title} setValue={setTitle} />
           </View>
 
           <View style={styles.buttonsContainer}>
@@ -120,7 +127,7 @@ export default function WorkoutsCreateAddExerciseBottomSheet() {
           </View>
         </View>
       </BottomSheetView>
-    </BottomSheet>
+    </BottomSheetModal>
   );
 }
 
