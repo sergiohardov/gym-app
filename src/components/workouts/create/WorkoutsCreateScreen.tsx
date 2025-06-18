@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform } from "react-native";
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform, Keyboard } from "react-native";
 import React from "react";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
@@ -88,7 +88,10 @@ export default function WorkoutsCreateScreen() {
                 <Button
                   title="Добавить упражнение"
                   icon={<Ionicons name="add" size={20} color={Colors.primary} />}
-                  callback={() => dispatch({ type: "SHOW_MODAL" })}
+                  callback={() => {
+                    Keyboard.dismiss()
+                    dispatch({ type: "SHOW_MODAL" })
+                  }}
                 />
               </View>
             </View>
