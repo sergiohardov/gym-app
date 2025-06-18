@@ -9,7 +9,7 @@ import ButtonString from "@/components/base/ButtonString";
 
 const WorkoutsCreateExerciseCard = memo(
   ({ exercise, exerciseIndex }: { exercise: WorkoutCreateState["exercises"][number]; exerciseIndex: number }) => {
-    const { getExerciseTitle, dispatch } = useWorkoutsCreateContext();
+    const { dispatch } = useWorkoutsCreateContext();
 
     return (
       <View style={styles.container}>
@@ -20,7 +20,7 @@ const WorkoutsCreateExerciseCard = memo(
             </View>
 
             <View style={styles.titleContainer}>
-              <Text style={styles.titleText}>{getExerciseTitle(exercise.exerciseId)}</Text>
+              <Text style={styles.titleText}>{exercise.exercise.name}</Text>
               <Text style={styles.subtitleText}>
                 {exercise.sets.length} {exercise.sets.length === 1 ? "подход" : "подходов"}
               </Text>

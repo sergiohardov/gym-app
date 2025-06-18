@@ -1,5 +1,5 @@
-import { FullTemplateWorkout } from "@/types/db";
-import { WorkoutSession } from "@/types/workouts";
+import { FullTemplateWorkout, NewFullTemplateWorkout } from "@/types/db";
+import { WorkoutCreateState, WorkoutSession } from "@/types/workouts";
 
 export const formatTime = (seconds: number): string => {
   const mins = Math.floor(seconds / 60);
@@ -13,6 +13,22 @@ export const formatSetSubtitle = (
   set: WorkoutSession["exercises"][number]["sets"][number]
 ) => {
   return `Подход ${setCurrent}/${setTotal} • ${set.weight}кг × ${set.reps}`;
+};
+
+export const convertWorkoutCreateStateToNewFullTemplateWorkout = (
+  workoutCreateState: WorkoutCreateState
+): NewFullTemplateWorkout => {
+  return {
+    name: workoutCreateState.name,
+    exercises: workoutCreateState.exercises.map((exerciseItem) => ({
+      exerciseId: exerciseItem.exercise.id,
+      sets: exerciseItem.sets.map((set) => ({
+        weight: +set.weight,
+        reps: +set.reps,
+        rest: +set.rest,
+      })),
+    })),
+  };
 };
 
 export const convertFullWorkoutToSession = (fullWorkout: FullTemplateWorkout): WorkoutSession => {

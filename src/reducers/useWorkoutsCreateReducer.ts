@@ -3,21 +3,21 @@ import { useReducer } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 const initialState: WorkoutCreateState = {
-  title: "",
+  name: "",
   exercises: [],
   modalVisible: false,
 };
 
 function workoutCreateReducer(state: WorkoutCreateState, action: WorkoutCreateAction): WorkoutCreateState {
   switch (action.type) {
-    case "SET_TITLE": {
-      return { ...state, title: action.payload };
+    case "SET_NAME": {
+      return { ...state, name: action.payload };
     }
 
     case "ADD_EXERCISE": {
       const newExercise: WorkoutCreateState["exercises"][number] = {
         _id: uuidv4(),
-        exerciseId: action.payload.exerciseId,
+        exercise: action.payload,
         sets: [],
       };
 

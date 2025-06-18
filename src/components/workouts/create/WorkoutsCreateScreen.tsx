@@ -49,8 +49,8 @@ export default function WorkoutsCreateScreen() {
 
                 <Input
                   placeholder="Например: Тренировка груди и трицепса"
-                  value={state.title}
-                  setValue={(value) => dispatch({ type: "SET_TITLE", payload: value })}
+                  value={state.name}
+                  setValue={(value) => dispatch({ type: "SET_NAME", payload: value })}
                 />
               </View>
 

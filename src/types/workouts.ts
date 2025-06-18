@@ -2,10 +2,10 @@ import { Dispatch } from "react";
 import { Exercise, FullTemplateWorkout } from "./db";
 
 export type WorkoutCreateState = {
-  title: string;
+  name: string;
   exercises: {
     _id: string;
-    exerciseId: number;
+    exercise: Exercise;
     sets: {
       _id: string;
       weight: string;
@@ -17,8 +17,8 @@ export type WorkoutCreateState = {
 };
 
 export type WorkoutCreateAction =
-  | { type: "SET_TITLE"; payload: string }
-  | { type: "ADD_EXERCISE"; payload: { exerciseId: number } }
+  | { type: "SET_NAME"; payload: string }
+  | { type: "ADD_EXERCISE"; payload: Exercise }
   | { type: "ADD_EXERCISE_SET"; payload: { _id: string } }
   | {
       type: "UPDATE_EXERCISE_SET";
@@ -39,7 +39,6 @@ export interface WorkoutCreateContextProps {
   state: WorkoutCreateState;
   dispatch: Dispatch<WorkoutCreateAction>;
   exercises: Exercise[];
-  getExerciseTitle: (id: number) => string;
   handleCancel: () => void;
   handleSave: () => void;
 }

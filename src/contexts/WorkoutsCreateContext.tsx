@@ -2,6 +2,7 @@ import { useWorkoutValidation } from "@/hooks/useWorkoutValidation";
 import { useWorkoutsCreateReducer } from "@/reducers/useWorkoutsCreateReducer";
 import { Exercise } from "@/types/db";
 import { WorkoutCreateContextProps } from "@/types/workouts";
+import { convertWorkoutCreateStateToNewFullTemplateWorkout } from "@/utils/format";
 import { ExercisesModel } from "db/models/exercises";
 import { TemplateWorkoutsModel } from "db/models/template-workouts";
 import { router } from "expo-router";
@@ -31,7 +32,7 @@ export const WorkoutsCreateProvider = ({ children }: { children: ReactNode }) =>
   }, []);
 
   const handleCancel = useCallback(() => {
-    const hasChanges = state.title.trim() || state.exercises.length > 0;
+    const hasChanges = state.name.trim() || state.exercises.length > 0;
 
     if (hasChanges) {
       Alert.alert("Отменить создание?", "Все несохраненные изменения будут потеряны", [
@@ -48,7 +49,7 @@ export const WorkoutsCreateProvider = ({ children }: { children: ReactNode }) =>
     } else {
       router.back();
     }
-  }, [state.title, state.exercises, dispatch]);
+  }, [state.name, state.exercises, dispatch]);
 
   const handleSave = useCallback(async () => {
     if (!isWorkoutValid) {
@@ -57,19 +58,11 @@ export const WorkoutsCreateProvider = ({ children }: { children: ReactNode }) =>
     }
 
     try {
-      const workout = await TemplateWorkoutsModel.createFull({
-        name: state.title,
-        exercises: state.exercises.map((exercise) => ({
-          exerciseId: exercise.exerciseId,
-          sets: exercise.sets.map((set) => ({
-            weight: +set.weight,
-            reps: +set.reps,
-            rest: +set.rest,
-          })),
-        })),
-      });
+      const templateWorkout = await TemplateWorkoutsModel.createFull(
+        convertWorkoutCreateStateToNewFullTemplateWorkout(state)
+      );
 
-      if (!workout.id) throw Error("");
+      if (!templateWorkout.id) throw Error("");
 
       Alert.alert("Успех", "Тренировка сохранена", [{ text: "OK" }]);
     } catch (error) {
@@ -79,20 +72,10 @@ export const WorkoutsCreateProvider = ({ children }: { children: ReactNode }) =>
     }
   }, [state, isWorkoutValid]);
 
-  const getExerciseTitle = useMemo(
-    () =>
-      (id: number): string => {
-        const exercise = exercises.find((item) => item.id === id);
-        return exercise ? exercise.name : "";
-      },
-    [exercises]
-  );
-
   return (
     <Context.Provider
       value={{
         exercises,
-        getExerciseTitle,
         state,
         dispatch,
         handleCancel,

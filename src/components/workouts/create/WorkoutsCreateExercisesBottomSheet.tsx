@@ -5,6 +5,7 @@ import { Colors } from "@/constants/Colors";
 import { useWorkoutsCreateContext } from "@/contexts/WorkoutsCreateContext";
 import BottomSheet, { BottomSheetView, BottomSheetBackdrop, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import Input from "@/components/base/Input";
+import { Exercise } from "@/types/db";
 
 export default function WorkoutsCreateExercisesBottomSheet() {
   const { state, dispatch, exercises } = useWorkoutsCreateContext();
@@ -16,10 +17,10 @@ export default function WorkoutsCreateExercisesBottomSheet() {
   );
 
   const handleSelectExercise = useCallback(
-    (exerciseId: number) => {
+    (exercise: Exercise) => {
       dispatch({
         type: "ADD_EXERCISE",
-        payload: { exerciseId },
+        payload: exercise,
       });
       handleClose();
     },
@@ -51,10 +52,10 @@ export default function WorkoutsCreateExercisesBottomSheet() {
   }, [state.modalVisible]);
 
   const renderListItem = useCallback(
-    ({ item, index }: { item: any; index: number }) => (
+    ({ item, index }: { item: Exercise; index: number }) => (
       <TouchableOpacity
         style={[styles.listOption, index === filteredExercises.length - 1 && styles.lastItem]}
-        onPress={() => handleSelectExercise(item.id)}
+        onPress={() => handleSelectExercise(item)}
         activeOpacity={0.7}
       >
         <View style={styles.exerciseInfo}>
