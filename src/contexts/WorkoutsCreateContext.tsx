@@ -17,19 +17,19 @@ export const WorkoutsCreateProvider = ({ children }: { children: ReactNode }) =>
 
   const isWorkoutValid = useWorkoutValidation(state);
 
-  useEffect(() => {
-    const fetchExercises = async () => {
-      try {
-        const data = await ExercisesModel.getAll();
-        setExercises(data);
-      } catch (error) {
-        Alert.alert("Ошибка", "Произошла ошибка при получении упражнений.");
-        router.back();
-      }
-    };
-
-    fetchExercises();
+  const fetchExercises = useCallback(async () => {
+    try {
+      const data = await ExercisesModel.getAll();
+      setExercises(data);
+    } catch (error) {
+      Alert.alert("Ошибка", "Произошла ошибка при получении упражнений.");
+      router.back();
+    }
   }, []);
+
+  const refetchExercises = useCallback(async () => {
+    await fetchExercises();
+  }, [fetchExercises]);
 
   const handleCancel = useCallback(() => {
     const hasChanges = state.name.trim() || state.exercises.length > 0;
@@ -72,6 +72,10 @@ export const WorkoutsCreateProvider = ({ children }: { children: ReactNode }) =>
     }
   }, [state, isWorkoutValid]);
 
+  useEffect(() => {
+    fetchExercises();
+  }, [fetchExercises]);
+
   return (
     <Context.Provider
       value={{
@@ -80,6 +84,7 @@ export const WorkoutsCreateProvider = ({ children }: { children: ReactNode }) =>
         dispatch,
         handleCancel,
         handleSave,
+        refetchExercises,
       }}
     >
       {children}

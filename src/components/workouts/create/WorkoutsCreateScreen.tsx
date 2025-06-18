@@ -9,6 +9,7 @@ import Header from "./Header";
 import Input from "@/components/base/Input";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import WorkoutsCreateExercisesBottomSheet from "@/components/workouts/create/WorkoutsCreateExercisesBottomSheet";
+import WorkoutsCreateAddExerciseBottomSheet from "./WorkoutsCreateAddExerciseBottomSheet";
 
 export default function WorkoutsCreateScreen() {
   const { state, dispatch } = useWorkoutsCreateContext();
@@ -100,6 +101,7 @@ export default function WorkoutsCreateScreen() {
       </SafeAreaView>
 
       <WorkoutsCreateExercisesBottomSheet />
+      <WorkoutsCreateAddExerciseBottomSheet />
     </GestureHandlerRootView>
   );
 }

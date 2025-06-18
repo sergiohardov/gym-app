@@ -6,6 +6,7 @@ import { useWorkoutsCreateContext } from "@/contexts/WorkoutsCreateContext";
 import BottomSheet, { BottomSheetView, BottomSheetBackdrop, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import Input from "@/components/base/Input";
 import { Exercise } from "@/types/db";
+import Button from "@/components/base/Button";
 
 export default function WorkoutsCreateExercisesBottomSheet() {
   const { state, dispatch, exercises } = useWorkoutsCreateContext();
@@ -31,6 +32,10 @@ export default function WorkoutsCreateExercisesBottomSheet() {
     dispatch({ type: "HIDE_MODAL" });
     setSearchQuery("");
     bottomSheetRef.current?.close();
+  }, [dispatch]);
+
+  const handleCreateExercise = useCallback(() => {
+    dispatch({ type: "SHOW_CREATE_EXERCISE_MODAL" });
   }, [dispatch]);
 
   const handleSheetChanges = useCallback(
@@ -80,7 +85,7 @@ export default function WorkoutsCreateExercisesBottomSheet() {
         </Text>
       </View>
     ),
-    [searchQuery]
+    [searchQuery, handleCreateExercise]
   );
 
   const renderItemSeparator = useCallback(() => <View style={styles.separator} />, []);
@@ -98,7 +103,6 @@ export default function WorkoutsCreateExercisesBottomSheet() {
       backgroundStyle={styles.bottomSheetBackground}
       handleIndicatorStyle={styles.bottomSheetIndicator}
     >
-      {/* Фиксированный header */}
       <View style={styles.headerContainer}>
         <View style={styles.headerIconContainer}>
           <Ionicons name="barbell" size={24} color={Colors.primary} />
@@ -111,17 +115,17 @@ export default function WorkoutsCreateExercisesBottomSheet() {
         </View>
       </View>
 
-      {/* Фиксированный поиск */}
       <View style={styles.searchContainer}>
         <Input
           icon={<Ionicons name="search" size={18} color={Colors.surface} />}
           placeholder="Поиск упражнений..."
           value={searchQuery}
           setValue={setSearchQuery}
+          style={{ flex: 2 }}
         />
+        <Button title="+ Создать" callback={handleCreateExercise} style={{ paddingVertical: 9 }} />
       </View>
 
-      {/* Прокручиваемый список - используем BottomSheetFlatList как основной компонент */}
       <BottomSheetFlatList
         data={filteredExercises}
         keyExtractor={(item) => item.id.toString()}
@@ -183,6 +187,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 16,
     backgroundColor: Colors.primary,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   listStyle: {
     flex: 1,
@@ -235,7 +242,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 40,
     gap: 16,
-    minHeight: 200, // Минимальная высота для empty state
+    minHeight: 200,
   },
   emptyStateTitle: {
     fontSize: 18,
@@ -248,5 +255,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 20,
     maxWidth: 280,
+  },
+  createFromEmptyButton: {
+    marginTop: 8,
+    paddingHorizontal: 20,
   },
 });

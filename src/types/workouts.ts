@@ -14,6 +14,7 @@ export type WorkoutCreateState = {
     }[];
   }[];
   modalVisible: boolean;
+  createExerciseModalVisible: boolean;
 };
 
 export type WorkoutCreateAction =
@@ -33,6 +34,8 @@ export type WorkoutCreateAction =
   | { type: "REMOVE_EXERCISE"; payload: { _id: string } }
   | { type: "SHOW_MODAL" }
   | { type: "HIDE_MODAL" }
+  | { type: "SHOW_CREATE_EXERCISE_MODAL" }
+  | { type: "HIDE_CREATE_EXERCISE_MODAL" }
   | { type: "RESET" };
 
 export interface WorkoutCreateContextProps {
@@ -41,6 +44,7 @@ export interface WorkoutCreateContextProps {
   exercises: Exercise[];
   handleCancel: () => void;
   handleSave: () => void;
+  refetchExercises: () => void;
 }
 
 export type WorkoutSession = {

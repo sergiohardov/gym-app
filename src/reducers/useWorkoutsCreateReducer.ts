@@ -6,6 +6,7 @@ const initialState: WorkoutCreateState = {
   name: "",
   exercises: [],
   modalVisible: false,
+  createExerciseModalVisible: false, // Добавляем новое состояние
 };
 
 function workoutCreateReducer(state: WorkoutCreateState, action: WorkoutCreateAction): WorkoutCreateState {
@@ -91,6 +92,23 @@ function workoutCreateReducer(state: WorkoutCreateState, action: WorkoutCreateAc
       return {
         ...state,
         modalVisible: false,
+      };
+    }
+
+    // Новые действия для управления modal создания упражнения
+    case "SHOW_CREATE_EXERCISE_MODAL": {
+      return {
+        ...state,
+        modalVisible: false, // Закрываем основной modal
+        createExerciseModalVisible: true, // Открываем modal создания упражнения
+      };
+    }
+
+    case "HIDE_CREATE_EXERCISE_MODAL": {
+      return {
+        ...state,
+        createExerciseModalVisible: false,
+        modalVisible: true, // Возвращаемся к основному modal
       };
     }
 
