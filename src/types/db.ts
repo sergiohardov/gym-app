@@ -43,11 +43,11 @@ export type NewHistoryWorkout = typeof historyWorkouts.$inferInsert;
 export type NewHistoryExercise = typeof historyExercises.$inferInsert;
 export type NewHistorySet = typeof historySets.$inferInsert;
 export type NewFullHistoryWorkout = {
-  templateWorkoutId: TemplateWorkout["id"];
+  templateWorkoutId: TemplateWorkout["id"] | null;
   name: string;
   duration: number;
   exercises: {
-    exerciseId: Exercise["id"];
+    exerciseId: Exercise["id"] | null;
     name: string;
     sets: {
       weight: number | null;
