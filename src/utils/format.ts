@@ -1,5 +1,6 @@
 import { FullTemplateWorkout, NewFullTemplateWorkout } from "@/types/db";
 import { WorkoutCreateState, WorkoutSession } from "@/types/workouts";
+import { v4 as uuidv4 } from "uuid";
 
 export const formatTime = (seconds: number): string => {
   const mins = Math.floor(seconds / 60);
@@ -36,10 +37,12 @@ export const convertFullWorkoutToSession = (fullWorkout: FullTemplateWorkout): W
     title: fullWorkout.name,
     complete: false,
     exercises: fullWorkout.templateExercises.map((workoutExercise) => ({
+      _id: uuidv4(),
       id: workoutExercise.exercise.id,
       title: workoutExercise.exercise.name,
       complete: false,
       sets: workoutExercise.sets.map((set) => ({
+        _id: uuidv4(),
         id: set.id,
         complete: false,
         weight: set.weight,

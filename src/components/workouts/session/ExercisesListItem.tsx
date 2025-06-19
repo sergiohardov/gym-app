@@ -64,7 +64,7 @@ export default function ExercisesListItem({
 
       {exercise.sets.map((set: WorkoutSession["exercises"][number]["sets"][number], setListIndex: number) => (
         <ExerciseSet
-          key={"ExerciseSet_" + setListIndex}
+          key={set._id}
           set={set}
           exerciseListIndex={exerciseListIndex}
           setListIndex={setListIndex}

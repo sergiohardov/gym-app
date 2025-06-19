@@ -51,10 +51,12 @@ export type WorkoutSession = {
   title: string;
   complete: boolean;
   exercises: {
+    _id: string;
     id: number;
     title: string;
     complete: boolean;
     sets: {
+      _id: string;
       id: number;
       complete: boolean;
       weight: number | null;
