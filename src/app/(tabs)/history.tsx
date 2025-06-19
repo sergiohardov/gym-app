@@ -5,7 +5,7 @@ import Card from "@/components/base/Card";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { db } from "db/client";
 
-export default function WorkoutsHistoryScreen() {
+export default function HistoryTabScreen() {
   const { data }: { data: any } = useLiveQuery(
     db.query.historyWorkouts.findMany({
       with: {

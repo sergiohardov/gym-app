@@ -22,7 +22,7 @@ export const useWorkoutSession = () => {
           text: "К истории",
           onPress: () => {
             resetStore();
-            router.replace("/(tabs)/(workouts)/history");
+            router.replace("/(tabs)/history");
           },
         },
       ]);
@@ -68,7 +68,7 @@ export const useWorkoutSession = () => {
                   text: "К истории",
                   onPress: () => {
                     resetStore();
-                    router.replace("/(tabs)/(workouts)/history");
+                    router.replace("/(tabs)/history");
                   },
                 },
               ]);
