@@ -1,7 +1,53 @@
 import { FullTemplateWorkout } from "@/types/db";
-import { WorkoutsSessionStore, WorkoutSession } from "@/types/workouts";
-import { convertFullWorkoutToSession, formatSetSubtitle } from "@/utils/format";
+import { WorkoutSession, WorkoutsSessionStore } from "@/types/workouts";
+import {
+  convertFullWorkoutToSession,
+  convertSessionToHistoryData,
+  formatSetSubtitle,
+  formatTime,
+} from "@/utils/format";
+import { HistoryWorkoutsModel } from "db/models/history-workouts";
 import { create } from "zustand";
+
+const canSaveWorkout = (workout: WorkoutSession, status: string): boolean => {
+  if (status === "start") {
+    return false;
+  }
+
+  return workout.exercises.some((exercise) => exercise.sets.some((set) => set.complete));
+};
+
+const getWorkoutStats = (workout: WorkoutSession) => {
+  let completedSets = 0;
+  let totalSets = 0;
+  let completedExercises = 0;
+  let totalWeight = 0;
+
+  workout.exercises.forEach((exercise) => {
+    if (exercise.complete) {
+      completedExercises++;
+    }
+
+    exercise.sets.forEach((set) => {
+      totalSets++;
+      if (set.complete) {
+        completedSets++;
+        if (set.weight && set.reps) {
+          totalWeight += set.weight * set.reps;
+        }
+      }
+    });
+  });
+
+  return {
+    completedSets,
+    totalSets,
+    completedExercises,
+    totalExercises: workout.exercises.length,
+    totalWeight,
+    completionPercentage: totalSets > 0 ? Math.round((completedSets / totalSets) * 100) : 0,
+  };
+};
 
 export const useWorkoutsSessionStore = create<WorkoutsSessionStore>((set, get) => ({
   workout: {
@@ -9,12 +55,13 @@ export const useWorkoutsSessionStore = create<WorkoutsSessionStore>((set, get) =
     complete: false,
     exercises: [],
   },
+  templateWorkoutId: null,
   currentExerciseIndex: 0,
   currentSetIndex: 0,
   durationTime: 0,
   restTime: 0,
   restTimer: null,
-  status: "start",
+  status: "start", // ?
   isResting: false,
   isPlaying: false,
   isWorkoutStart: false,
@@ -22,12 +69,14 @@ export const useWorkoutsSessionStore = create<WorkoutsSessionStore>((set, get) =
   playerTitle: "Загрузка тренировки...",
   playerSubtitle: "",
   isLoading: true,
+  isSaving: false,
 
   loadWorkout: (fullWorkout: FullTemplateWorkout) => {
     const sessionWorkout = convertFullWorkoutToSession(fullWorkout);
 
     set({
       workout: sessionWorkout,
+      templateWorkoutId: fullWorkout.id,
       playerTitle: "Начните тренировку",
       playerSubtitle: "",
       isLoading: false,
@@ -41,6 +90,7 @@ export const useWorkoutsSessionStore = create<WorkoutsSessionStore>((set, get) =
       isPlaying: false,
       isWorkoutStart: false,
       isWorkoutEnd: false,
+      isSaving: false,
     });
   },
 
@@ -56,6 +106,7 @@ export const useWorkoutsSessionStore = create<WorkoutsSessionStore>((set, get) =
         complete: false,
         exercises: [],
       },
+      templateWorkoutId: null,
       currentExerciseIndex: 0,
       currentSetIndex: 0,
       durationTime: 0,
@@ -69,6 +120,7 @@ export const useWorkoutsSessionStore = create<WorkoutsSessionStore>((set, get) =
       playerTitle: "Загрузка тренировки...",
       playerSubtitle: "",
       isLoading: true,
+      isSaving: false,
     });
   },
 
@@ -251,5 +303,88 @@ export const useWorkoutsSessionStore = create<WorkoutsSessionStore>((set, get) =
     } else {
       get().completeWorkout();
     }
+  },
+
+  // Новый метод для сохранения сессии тренировки
+  saveWorkoutSession: async (forced = false) => {
+    const state = get();
+
+    // Проверяем, что тренировка начата и есть что сохранять
+    if (!canSaveWorkout(state.workout, state.status) || state.isSaving) {
+      return { success: false, error: "Нет данных для сохранения" };
+    }
+
+    set({ isSaving: true });
+
+    try {
+      // Подготавливаем данные для сохранения
+      const historyWorkoutData = convertSessionToHistoryData(state);
+
+      // Проверяем, что есть выполненные упражнения
+      if (historyWorkoutData.exercises.length === 0) {
+        set({ isSaving: false });
+        return { success: false, error: "Нет выполненных упражнений для сохранения" };
+      }
+
+      // Сохраняем в историю
+      const result = await HistoryWorkoutsModel.createFull(historyWorkoutData);
+
+      if (result.id) {
+        set({ isSaving: false });
+
+        const stats = getWorkoutStats(state.workout);
+        const timeString = formatTime(state.durationTime);
+
+        const summary =
+          `Выполнено: ${stats.completedSets}/${stats.totalSets} подходов (${stats.completionPercentage}%)\n` +
+          `Упражнения: ${stats.completedExercises}/${stats.totalExercises}\n` +
+          `Время: ${timeString}\n` +
+          `Общий вес: ${stats.totalWeight} кг`;
+
+        return {
+          success: true,
+          historyId: result.id,
+          message: forced
+            ? `Тренировка принудительно сохранена\n\n${summary}`
+            : `Тренировка успешно завершена!\n\n${summary}`,
+        };
+      } else {
+        throw new Error("Не удалось получить ID сохраненной тренировки");
+      }
+    } catch (error) {
+      console.error("Ошибка сохранения тренировки:", error);
+      set({ isSaving: false });
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Неизвестная ошибка при сохранении",
+      };
+    }
+  },
+
+  // Метод для принудительного завершения и сохранения тренировки
+  forceCompleteAndSave: async () => {
+    const state = get();
+
+    if (!canSaveWorkout(state.workout, state.status)) {
+      return { success: false, error: "Тренировка не начата или нет выполненных упражнений" };
+    }
+
+    // Останавливаем таймеры
+    if (state.restTimer) {
+      clearInterval(state.restTimer);
+    }
+
+    // Устанавливаем статус завершения
+    set({
+      status: "end",
+      isResting: false,
+      restTime: 0,
+      restTimer: null,
+      playerTitle: "Тренировка принудительно завершена",
+      playerSubtitle: "",
+    });
+
+    // Сохраняем тренировку
+    return await get().saveWorkoutSession(true);
   },
 }));
