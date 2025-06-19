@@ -3,28 +3,30 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 import ReanimatedSwipeable, { SwipeableMethods } from "react-native-gesture-handler/ReanimatedSwipeable";
-import { getFullWorkout, removeWorkout } from "db/queries";
 import { router } from "expo-router";
-import { FullWorkout, Workout } from "@/types/db";
+import { FullTemplateWorkout, TemplateWorkout } from "@/types/db";
+import { TemplateWorkoutsModel } from "db/models/template-workouts";
 
 // TODO: Replace type props to workouts.ts
 // TODO: When data undefined or broken add logic for catch in use effect
 // TODO: Create link to session workout
 
 type WorkoutPreviewListItemProps = {
-  workoutId: Workout["id"];
+  workoutId: TemplateWorkout["id"];
   onSwipeableWillOpen: (ref: SwipeableMethods) => void;
 };
 
 export default function WorkoutPreviewListItem({ workoutId, onSwipeableWillOpen }: WorkoutPreviewListItemProps) {
-  const [workout, setWorkout] = useState<FullWorkout | undefined>(undefined);
+  const [workout, setWorkout] = useState<FullTemplateWorkout | undefined>(undefined);
   const swipeableRef = useRef(null);
 
   useEffect(() => {
     const fetchWorkout = async () => {
       try {
-        const data = await getFullWorkout(workoutId);
-        setWorkout(data);
+        const data = await TemplateWorkoutsModel.getFullById(workoutId);
+        if (data) {
+          setWorkout(data);
+        }
       } catch (error) {}
     };
 
@@ -46,7 +48,7 @@ export default function WorkoutPreviewListItem({ workoutId, onSwipeableWillOpen 
             justifyContent: "center",
             alignItems: "center",
           }}
-          onPress={async () => await removeWorkout(workoutId)}
+          onPress={async () => await TemplateWorkoutsModel.remove(workoutId)}
         >
           <Ionicons name="trash" size={30} color={"red"} />
         </TouchableOpacity>
@@ -54,12 +56,12 @@ export default function WorkoutPreviewListItem({ workoutId, onSwipeableWillOpen 
     >
       <View style={styles.container}>
         <View style={styles.content}>
-          <Text style={styles.title}>{workout?.title}</Text>
+          <Text style={styles.title}>{workout?.name}</Text>
 
           <View style={styles.detailsContainer}>
             <View style={styles.detailItem}>
               <Ionicons name="barbell-outline" size={18} color="#666" />
-              <Text style={styles.detailText}>{workout?.workoutExercises.length} упражнений</Text>
+              <Text style={styles.detailText}>{workout?.templateExercises.length} упражнений</Text>
             </View>
 
             <View style={styles.detailItem}>

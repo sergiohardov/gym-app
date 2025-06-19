@@ -1,11 +1,11 @@
 import { Dispatch } from "react";
-import { Exercise, FullWorkout } from "./db";
+import { Exercise, FullTemplateWorkout } from "./db";
 
 export type WorkoutCreateState = {
-  title: string;
+  name: string;
   exercises: {
     _id: string;
-    exerciseId: number;
+    exercise: Exercise;
     sets: {
       _id: string;
       weight: string;
@@ -14,11 +14,12 @@ export type WorkoutCreateState = {
     }[];
   }[];
   modalVisible: boolean;
+  createExerciseModalVisible: boolean;
 };
 
 export type WorkoutCreateAction =
-  | { type: "SET_TITLE"; payload: string }
-  | { type: "ADD_EXERCISE"; payload: { exerciseId: number } }
+  | { type: "SET_NAME"; payload: string }
+  | { type: "ADD_EXERCISE"; payload: Exercise }
   | { type: "ADD_EXERCISE_SET"; payload: { _id: string } }
   | {
       type: "UPDATE_EXERCISE_SET";
@@ -33,15 +34,17 @@ export type WorkoutCreateAction =
   | { type: "REMOVE_EXERCISE"; payload: { _id: string } }
   | { type: "SHOW_MODAL" }
   | { type: "HIDE_MODAL" }
+  | { type: "SHOW_CREATE_EXERCISE_MODAL" }
+  | { type: "HIDE_CREATE_EXERCISE_MODAL" }
   | { type: "RESET" };
 
 export interface WorkoutCreateContextProps {
   state: WorkoutCreateState;
   dispatch: Dispatch<WorkoutCreateAction>;
   exercises: Exercise[];
-  getExerciseTitle: (id: number) => string;
   handleCancel: () => void;
   handleSave: () => void;
+  refetchExercises: () => void;
 }
 
 export type WorkoutSession = {
@@ -77,7 +80,7 @@ export interface WorkoutsSessionStore {
   playerSubtitle: string;
   isLoading: boolean;
 
-  loadWorkout: (fullWorkout: FullWorkout) => void;
+  loadWorkout: (fullWorkout: FullTemplateWorkout) => void;
   resetStore: () => void;
   startSession: () => void;
   togglePlayPause: () => void;

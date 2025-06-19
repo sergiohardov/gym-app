@@ -1,16 +1,21 @@
 import { View, Text, StyleSheet } from "react-native";
 import React from "react";
-import GoogleSignInButton from "@/components/GoogleSignInButton";
 import { Colors } from "@/constants/Colors";
+import Button from "@/components/base/Button";
+import AntDesign from "@expo/vector-icons/AntDesign";
 
 export default function ProfileTabScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.description}>Используется оффлайн режим</Text>
-      <GoogleSignInButton />
-      <Text style={styles.description}>
-        Что бы пользоваться онлайн функциями необходима авторизация
-      </Text>
+
+      <Button
+        title="Продолжить с Google"
+        icon={<AntDesign name="google" size={20} color={Colors.primary} />}
+        callback={() => {}}
+      />
+
+      <Text style={styles.description}>Что бы пользоваться онлайн функциями необходима авторизация</Text>
     </View>
   );
 }

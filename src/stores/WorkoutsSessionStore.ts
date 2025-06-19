@@ -1,7 +1,7 @@
+import { FullTemplateWorkout } from "@/types/db";
 import { WorkoutsSessionStore, WorkoutSession } from "@/types/workouts";
 import { convertFullWorkoutToSession, formatSetSubtitle } from "@/utils/format";
 import { create } from "zustand";
-import { FullWorkout } from "@/types/db";
 
 export const useWorkoutsSessionStore = create<WorkoutsSessionStore>((set, get) => ({
   workout: {
@@ -23,7 +23,7 @@ export const useWorkoutsSessionStore = create<WorkoutsSessionStore>((set, get) =
   playerSubtitle: "",
   isLoading: true,
 
-  loadWorkout: (fullWorkout: FullWorkout) => {
+  loadWorkout: (fullWorkout: FullTemplateWorkout) => {
     const sessionWorkout = convertFullWorkoutToSession(fullWorkout);
 
     set({

@@ -5,10 +5,10 @@ import { db } from "db/client";
 import WorkoutPreviewListItem from "@/components/workouts/index/WorkoutPreviewListItem";
 import { useRef } from "react";
 import { SwipeableMethods } from "react-native-gesture-handler/lib/typescript/components/ReanimatedSwipeable";
-import { Workout } from "@/types/db";
+import { TemplateWorkout } from "@/types/db";
 
 export default function WorkoutsTabScreen() {
-  const { data }: { data: Workout[] } = useLiveQuery(db.query.workouts.findMany());
+  const { data }: { data: TemplateWorkout[] } = useLiveQuery(db.query.templateWorkouts.findMany());
 
   const openedSwipeableRef = useRef<SwipeableMethods | null>(null);
 

@@ -1,25 +1,29 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
-import { View, Text, TouchableOpacity, FlatList, StyleSheet, TextInput } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 import { useWorkoutsCreateContext } from "@/contexts/WorkoutsCreateContext";
-import BottomSheet, { BottomSheetView, BottomSheetBackdrop, BottomSheetFlatList } from "@gorhom/bottom-sheet";
-import Input from "@/components/base/Input";
+import { BottomSheetModal, BottomSheetBackdrop, BottomSheetFlatList } from "@gorhom/bottom-sheet";
+import { Exercise } from "@/types/db";
+import Button from "@/components/base/Button";
+import InputBottomSheet from "@/components/base/InputBottomSheet";
 
 export default function WorkoutsCreateExercisesBottomSheet() {
   const { state, dispatch, exercises } = useWorkoutsCreateContext();
   const [searchQuery, setSearchQuery] = useState("");
-  const bottomSheetRef = useRef<BottomSheet>(null);
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const filteredExercises = exercises.filter((exercise) =>
-    exercise.title.toLowerCase().includes(searchQuery.toLowerCase())
+    exercise.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const snapPoints = ["60%", "85%"];
+
   const handleSelectExercise = useCallback(
-    (exerciseId: number) => {
+    (exercise: Exercise) => {
       dispatch({
         type: "ADD_EXERCISE",
-        payload: { exerciseId },
+        payload: exercise,
       });
       handleClose();
     },
@@ -29,7 +33,11 @@ export default function WorkoutsCreateExercisesBottomSheet() {
   const handleClose = useCallback(() => {
     dispatch({ type: "HIDE_MODAL" });
     setSearchQuery("");
-    bottomSheetRef.current?.close();
+    bottomSheetModalRef.current?.dismiss();
+  }, [dispatch]);
+
+  const handleCreateExercise = useCallback(() => {
+    dispatch({ type: "SHOW_CREATE_EXERCISE_MODAL" });
   }, [dispatch]);
 
   const handleSheetChanges = useCallback(
@@ -42,26 +50,34 @@ export default function WorkoutsCreateExercisesBottomSheet() {
     [dispatch]
   );
 
+  // Используем useEffect для открытия/закрытия модального окна
   useEffect(() => {
     if (state.modalVisible) {
-      bottomSheetRef.current?.snapToIndex(0); // Open to first snap point (60%)
+      bottomSheetModalRef.current?.present();
     } else {
-      bottomSheetRef.current?.close();
+      bottomSheetModalRef.current?.dismiss();
     }
   }, [state.modalVisible]);
 
+  const renderBackdrop = useCallback(
+    (props: any) => (
+      <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={0} opacity={0.5} onPress={handleClose} />
+    ),
+    [handleClose]
+  );
+
   const renderListItem = useCallback(
-    ({ item, index }: { item: any; index: number }) => (
+    ({ item, index }: { item: Exercise; index: number }) => (
       <TouchableOpacity
         style={[styles.listOption, index === filteredExercises.length - 1 && styles.lastItem]}
-        onPress={() => handleSelectExercise(item.id)}
+        onPress={() => handleSelectExercise(item)}
         activeOpacity={0.7}
       >
         <View style={styles.exerciseInfo}>
           <View style={styles.exerciseIconContainer}>
             <Ionicons name="fitness" size={20} color={Colors.primary} />
           </View>
-          <Text style={styles.listOptionText}>{item.title}</Text>
+          <Text style={styles.listOptionText}>{item.name}</Text>
         </View>
         <Ionicons name="chevron-forward" size={18} color={Colors.secondary} />
       </TouchableOpacity>
@@ -85,19 +101,15 @@ export default function WorkoutsCreateExercisesBottomSheet() {
   const renderItemSeparator = useCallback(() => <View style={styles.separator} />, []);
 
   return (
-    <BottomSheet
-      ref={bottomSheetRef}
+    <BottomSheetModal
+      ref={bottomSheetModalRef}
       onChange={handleSheetChanges}
-      snapPoints={["60%", "85%"]}
+      snapPoints={snapPoints}
       enablePanDownToClose
-      index={-1}
-      backdropComponent={(props) => (
-        <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={0} opacity={0.5} onPress={handleClose} />
-      )}
+      backdropComponent={renderBackdrop}
       backgroundStyle={styles.bottomSheetBackground}
       handleIndicatorStyle={styles.bottomSheetIndicator}
     >
-      {/* Фиксированный header */}
       <View style={styles.headerContainer}>
         <View style={styles.headerIconContainer}>
           <Ionicons name="barbell" size={24} color={Colors.primary} />
@@ -110,17 +122,18 @@ export default function WorkoutsCreateExercisesBottomSheet() {
         </View>
       </View>
 
-      {/* Фиксированный поиск */}
       <View style={styles.searchContainer}>
-        <Input
+        <InputBottomSheet
+          style={{ flex: 2 }}
           icon={<Ionicons name="search" size={18} color={Colors.surface} />}
           placeholder="Поиск упражнений..."
           value={searchQuery}
           setValue={setSearchQuery}
         />
+
+        <Button title="+ Создать" callback={handleCreateExercise} style={{ paddingVertical: 9 }} />
       </View>
 
-      {/* Прокручиваемый список - используем BottomSheetFlatList как основной компонент */}
       <BottomSheetFlatList
         data={filteredExercises}
         keyExtractor={(item) => item.id.toString()}
@@ -132,7 +145,7 @@ export default function WorkoutsCreateExercisesBottomSheet() {
         contentContainerStyle={styles.listContainer}
         style={styles.listStyle}
       />
-    </BottomSheet>
+    </BottomSheetModal>
   );
 }
 
@@ -182,6 +195,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 16,
     backgroundColor: Colors.primary,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   listStyle: {
     flex: 1,
@@ -226,15 +242,13 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: Colors.surface,
   },
-
-  // Empty State Styles
   emptyState: {
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 20,
     paddingVertical: 40,
     gap: 16,
-    minHeight: 200, // Минимальная высота для empty state
+    minHeight: 200,
   },
   emptyStateTitle: {
     fontSize: 18,

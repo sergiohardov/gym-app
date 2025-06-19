@@ -1,39 +1,40 @@
-import { relations, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { relations } from "drizzle-orm";
 
 /* Tables */
 export const exercises = sqliteTable("exercises", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  title: text("title").notNull().unique(),
+  name: text("name").notNull().unique(),
   createdAt: text("created_at")
     .default(sql`(CURRENT_TIMESTAMP)`)
     .notNull(),
 });
 
-export const workouts = sqliteTable("workouts", {
+export const templateWorkouts = sqliteTable("template_workouts", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  title: text("title").notNull(),
+  name: text("name").notNull(),
   createdAt: text("created_at")
     .default(sql`(CURRENT_TIMESTAMP)`)
     .notNull(),
 });
 
-export const workoutExercises = sqliteTable("workout_exercises", {
+export const templateExercises = sqliteTable("template_exercises", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  workoutId: integer("workout_id")
+  templateWorkoutId: integer("template_workout_id")
     .notNull()
-    .references(() => workouts.id, { onDelete: "cascade" }),
+    .references(() => templateWorkouts.id, { onDelete: "cascade" }),
   exerciseId: integer("exercise_id")
     .notNull()
-    .references(() => exercises.id, { onDelete: "cascade" }), // ИСПРАВЛЕНО: добавлен cascade
+    .references(() => exercises.id, { onDelete: "cascade" }),
   order: integer("order").notNull(),
 });
 
-export const workoutExerciseSets = sqliteTable("workout_exercise_sets", {
+export const templateSets = sqliteTable("template_sets", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  workoutExerciseId: integer("workout_exercise_id")
+  templateExerciseId: integer("template_exercise_id")
     .notNull()
-    .references(() => workoutExercises.id, { onDelete: "cascade" }),
+    .references(() => templateExercises.id, { onDelete: "cascade" }),
   order: integer("order").notNull(),
   weight: integer("weight"),
   reps: integer("reps"),
@@ -42,88 +43,88 @@ export const workoutExerciseSets = sqliteTable("workout_exercise_sets", {
 
 export const historyWorkouts = sqliteTable("history_workouts", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  workoutId: integer("workout_id").references(() => workouts.id, { onDelete: "set null" }), // ИСПРАВЛЕНО: set null вместо cascade
-  title: text("title").notNull(),
-  date: text("date").notNull(),
-  duration: integer("duration").notNull(),
+  templateWorkoutId: integer("template_workout_id").references(() => templateWorkouts.id, { onDelete: "set null" }),
+  name: text("name").notNull(), // save workout name if workout removed
+  duration: integer("duration"),
   createdAt: text("created_at")
     .default(sql`(CURRENT_TIMESTAMP)`)
     .notNull(),
 });
 
-export const historyWorkoutExercises = sqliteTable("history_workout_exercises", {
+export const historyExercises = sqliteTable("history_exercises", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   historyWorkoutId: integer("history_workout_id")
     .notNull()
     .references(() => historyWorkouts.id, { onDelete: "cascade" }),
-  exerciseId: integer("exercise_id").references(() => exercises.id, { onDelete: "set null" }), // ИСПРАВЛЕНО: set null вместо cascade
-  title: text("title").notNull(),
+  exerciseId: integer("exercise_id").references(() => exercises.id, { onDelete: "set null" }),
+  name: text("name").notNull(), // save exercise name if exercise removed
   order: integer("order").notNull(),
 });
 
-export const historyWorkoutExerciseSets = sqliteTable("history_workout_exercise_sets", {
+export const historySets = sqliteTable("history_sets", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  historyWorkoutExerciseId: integer("history_workout_exercise_id")
+  historyExerciseId: integer("history_exercise_id")
     .notNull()
-    .references(() => historyWorkoutExercises.id, { onDelete: "cascade" }),
+    .references(() => historyExercises.id, { onDelete: "cascade" }),
   order: integer("order").notNull(),
   weight: integer("weight"),
   reps: integer("reps"),
+  rest: integer("rest"),
 });
 
 /* Relations */
 export const exercisesRelations = relations(exercises, ({ many }) => ({
-  workoutExercise: many(workoutExercises),
-  historyWorkoutExercise: many(historyWorkoutExercises),
+  templateExercises: many(templateExercises),
+  historyExercises: many(historyExercises),
 }));
 
-export const workoutsRelations = relations(workouts, ({ many }) => ({
-  workoutExercises: many(workoutExercises),
-  historyWorkout: many(historyWorkouts),
+export const templateWorkoutsRelations = relations(templateWorkouts, ({ many }) => ({
+  templateExercises: many(templateExercises),
+  historyWorkouts: many(historyWorkouts),
 }));
 
-export const workoutExercisesRelations = relations(workoutExercises, ({ one, many }) => ({
-  workout: one(workouts, {
-    fields: [workoutExercises.workoutId],
-    references: [workouts.id],
+export const templateExercisesRelations = relations(templateExercises, ({ one, many }) => ({
+  workout: one(templateWorkouts, {
+    fields: [templateExercises.templateWorkoutId],
+    references: [templateWorkouts.id],
   }),
-  workoutExercise: one(exercises, {
-    fields: [workoutExercises.exerciseId],
+  exercise: one(exercises, {
+    fields: [templateExercises.exerciseId],
     references: [exercises.id],
   }),
-  workoutExerciseSets: many(workoutExerciseSets),
+  sets: many(templateSets),
 }));
 
-export const workoutExerciseSetsRelations = relations(workoutExerciseSets, ({ one }) => ({
-  workoutExercise: one(workoutExercises, {
-    fields: [workoutExerciseSets.workoutExerciseId],
-    references: [workoutExercises.id],
+export const templateSetsRelations = relations(templateSets, ({ one }) => ({
+  exercise: one(templateExercises, {
+    fields: [templateSets.templateExerciseId],
+    references: [templateExercises.id],
   }),
 }));
 
 export const historyWorkoutsRelations = relations(historyWorkouts, ({ one, many }) => ({
-  workout: one(workouts, {
-    fields: [historyWorkouts.workoutId],
-    references: [workouts.id],
+  workout: one(templateWorkouts, {
+    fields: [historyWorkouts.templateWorkoutId],
+    references: [templateWorkouts.id],
   }),
-  historyWorkoutExercises: many(historyWorkoutExercises),
+  exercises: many(historyExercises),
 }));
 
-export const historyWorkoutExercisesRelations = relations(historyWorkoutExercises, ({ one, many }) => ({
-  historyWorkout: one(historyWorkouts, {
-    fields: [historyWorkoutExercises.historyWorkoutId],
+export const historyExercisesRelations = relations(historyExercises, ({ one, many }) => ({
+  workout: one(historyWorkouts, {
+    fields: [historyExercises.historyWorkoutId],
     references: [historyWorkouts.id],
   }),
-  historyWorkoutExercises: one(exercises, {
-    fields: [historyWorkoutExercises.exerciseId],
+  exercise: one(exercises, {
+    fields: [historyExercises.exerciseId],
     references: [exercises.id],
   }),
-  historyWorkoutExerciseSets: many(historyWorkoutExerciseSets),
+  sets: many(historySets),
 }));
 
-export const historyWorkoutExerciseSetsRelations = relations(historyWorkoutExerciseSets, ({ one }) => ({
-  historyWorkoutExercise: one(historyWorkoutExercises, {
-    fields: [historyWorkoutExerciseSets.historyWorkoutExerciseId],
-    references: [historyWorkoutExercises.id],
+export const sessionSetsRelations = relations(historySets, ({ one }) => ({
+  exercise: one(historyExercises, {
+    fields: [historySets.historyExerciseId],
+    references: [historyExercises.id],
   }),
 }));

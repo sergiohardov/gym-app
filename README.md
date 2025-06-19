@@ -1,7 +1,42 @@
 # GYM APP
 
+## Стек
+Технологии
+- JavaScript
+- TypeScript
+- React Native (Expo)
+- SQLite
+
+Библиотеки 
+- UUID
+- Async Storage
+- Zustand
+- Drizzle
+- Gesture Handler
+- Bottom Sheet
+
 ## Комманды
+
+Что бы развернуть приложение нужно сначала установить пребилд
+
+```bash
+npx expo run:ios
+```
+
+потом открыть в xcode и добавить сертификат
+
+потом запустить еще раз
 
 ```bash
 npx expo run:ios --device
+```
+
+если пишет что не может подключится или проблемы с интернетом, попробовать открыть с помощью qr кода камерой
+
+
+
+
+
+```bash
+npx expo start --dev-client
 ```
