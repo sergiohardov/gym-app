@@ -1,4 +1,4 @@
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { router, Stack } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Colors } from "@/constants/Colors";
@@ -11,10 +11,22 @@ export default function ExercisesTabLayout() {
         options={{
           title: "Тренировки",
           headerRight: () => (
-            <TouchableOpacity onPress={() => router.push("create")}>
-              <Ionicons name="add-circle-outline" size={30} color={Colors.secondary} />
-            </TouchableOpacity>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
+              <TouchableOpacity onPress={() => router.push("history")}>
+                <Ionicons name="document-text-outline" size={30} color={Colors.secondary} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => router.push("create")}>
+                <Ionicons name="add-circle-outline" size={30} color={Colors.secondary} />
+              </TouchableOpacity>
+            </View>
           ),
+        }}
+      />
+
+      <Stack.Screen
+        name="history"
+        options={{
+          title: "История тренировок",
         }}
       />
 
