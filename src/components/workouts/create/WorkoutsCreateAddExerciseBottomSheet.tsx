@@ -3,10 +3,10 @@ import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 import { useWorkoutsCreateContext } from "@/contexts/WorkoutsCreateContext";
-import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
-import Input from "@/components/base/Input";
+import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop, BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import Button from "@/components/base/Button";
 import { ExercisesModel } from "db/models/exercises";
+import InputBottomSheet from "@/components/base/InputBottomSheet";
 
 export default function WorkoutsCreateAddExerciseBottomSheet() {
   const { state, dispatch, refetchExercises } = useWorkoutsCreateContext();
@@ -110,7 +110,7 @@ export default function WorkoutsCreateAddExerciseBottomSheet() {
         <View style={styles.contentContainer}>
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Название упражнения</Text>
-            <Input placeholder="Например: Жим штанги лежа" value={title} setValue={setTitle} />
+            <InputBottomSheet placeholder="Например: Жим штанги лежа" value={title} setValue={setTitle} />
           </View>
 
           <View style={styles.buttonsContainer}>

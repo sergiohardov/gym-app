@@ -3,10 +3,10 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 import { useWorkoutsCreateContext } from "@/contexts/WorkoutsCreateContext";
-import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop, BottomSheetFlatList } from "@gorhom/bottom-sheet";
-import Input from "@/components/base/Input";
+import { BottomSheetModal, BottomSheetBackdrop, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import { Exercise } from "@/types/db";
 import Button from "@/components/base/Button";
+import InputBottomSheet from "@/components/base/InputBottomSheet";
 
 export default function WorkoutsCreateExercisesBottomSheet() {
   const { state, dispatch, exercises } = useWorkoutsCreateContext();
@@ -123,13 +123,14 @@ export default function WorkoutsCreateExercisesBottomSheet() {
       </View>
 
       <View style={styles.searchContainer}>
-        <Input
+        <InputBottomSheet
+          style={{ flex: 2 }}
           icon={<Ionicons name="search" size={18} color={Colors.surface} />}
           placeholder="Поиск упражнений..."
           value={searchQuery}
           setValue={setSearchQuery}
-          style={{ flex: 2 }}
         />
+
         <Button title="+ Создать" callback={handleCreateExercise} style={{ paddingVertical: 9 }} />
       </View>
 
