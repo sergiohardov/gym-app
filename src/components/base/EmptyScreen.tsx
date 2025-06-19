@@ -1,14 +1,22 @@
 import { View, Text, StyleSheet } from "react-native";
-import React from "react";
+import React, { ReactNode } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 
-export default function EmptyScreen() {
+export default function EmptyScreen({
+  icon,
+  title,
+  subtitle,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  title: string;
+  subtitle: string;
+}) {
   return (
     <View style={styles.container}>
-      <Ionicons name="document-text-outline" size={64} color={Colors.surface} />
-      <Text style={styles.title}>История пуста</Text>
-      <Text style={styles.subtitle}>Завершите первую тренировку, чтобы увидеть её здесь</Text>
+      <Ionicons name={icon} size={64} color={Colors.surface} />
+      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.subtitle}>{subtitle}</Text>
     </View>
   );
 }

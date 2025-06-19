@@ -6,6 +6,7 @@ import WorkoutPreviewListItem from "@/components/workouts/index/WorkoutPreviewLi
 import { useRef } from "react";
 import { SwipeableMethods } from "react-native-gesture-handler/lib/typescript/components/ReanimatedSwipeable";
 import { TemplateWorkout } from "@/types/db";
+import EmptyScreen from "@/components/base/EmptyScreen";
 
 export default function WorkoutsTabScreen() {
   const { data }: { data: TemplateWorkout[] } = useLiveQuery(db.query.templateWorkouts.findMany());
@@ -38,10 +39,7 @@ export default function WorkoutsTabScreen() {
           }}
         />
       ) : (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>Список пуст.</Text>
-          <Text style={styles.emptyText}>Создайте свою первую тренировку</Text>
-        </View>
+        <EmptyScreen icon="barbell-outline" title="Тренировок не создано" subtitle="Создайте свою первую тренировку." />
       )}
     </View>
   );
@@ -66,14 +64,5 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 5,
-  },
-  emptyText: {
-    color: Colors.surface,
   },
 });

@@ -5,9 +5,9 @@ import Card from "@/components/base/Card";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { db } from "db/client";
 import ListItem from "@/components/history/ListItem";
-import EmptyScreen from "@/components/history/EmptyScreen";
 import { SwipeableMethods } from "react-native-gesture-handler/lib/typescript/components/ReanimatedSwipeable";
 import { useRef } from "react";
+import EmptyScreen from "@/components/base/EmptyScreen";
 
 export default function HistoryTabScreen() {
   const { data }: { data: any } = useLiveQuery(
@@ -21,7 +21,6 @@ export default function HistoryTabScreen() {
       },
     })
   );
-
   const openedSwipeableRef = useRef<SwipeableMethods | null>(null);
 
   const handleSwipeableOpen = (ref: SwipeableMethods) => {
@@ -51,7 +50,11 @@ export default function HistoryTabScreen() {
           }}
         />
       ) : (
-        <EmptyScreen />
+        <EmptyScreen
+          icon="document-text-outline"
+          title="История пуста"
+          subtitle="Завершите первую тренировку, чтобы увидеть её здесь"
+        />
       )}
     </View>
   );
