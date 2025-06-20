@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 import { useWorkoutsSessionStore } from "@/stores/WorkoutsSessionStore";
+import { useWorkoutSession } from "@/hooks/useWorkoutSession";
 import { formatSetSubtitle } from "@/utils/format";
 
 export default function Player() {
@@ -23,7 +24,11 @@ export default function Player() {
     stopRest,
     completeCurrentSet,
     proceedToNextStep,
+    isWorkoutCompleted,
+    isSaving,
   } = useWorkoutsSessionStore();
+
+  const { handleWorkoutComplete } = useWorkoutSession();
 
   const isShowPlayButton = status !== "end";
   const isShowNextButton = status !== "start" && status !== "end";
@@ -36,7 +41,7 @@ export default function Player() {
     togglePlayPause();
   };
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     if (status === "start" || status === "end") return;
 
     if (isResting) {
@@ -61,6 +66,11 @@ export default function Player() {
       if (restDuration) startRest(restDuration);
     } else {
       proceedToNextStep();
+
+      // Автоматически сохраняем тренировку при завершении
+      if (isWorkoutCompleted()) {
+        handleWorkoutComplete();
+      }
     }
   };
 
@@ -86,19 +96,19 @@ export default function Player() {
   return (
     <View style={styles.container}>
       <View style={styles.containerText}>
-        <Text style={styles.title}>{playerTitle}</Text>
+        <Text style={styles.title}>{isSaving ? "Сохранение..." : playerTitle}</Text>
         {playerSubtitle && <Text style={styles.subtitle}>{playerSubtitle}</Text>}
       </View>
 
       <View style={styles.containerControls}>
         {isShowPlayButton && (
-          <TouchableOpacity onPress={handlePlayPause} style={styles.controlButton}>
+          <TouchableOpacity onPress={handlePlayPause} style={styles.controlButton} disabled={isSaving}>
             <Ionicons name={status === "playing" ? "pause" : "play"} size={24} color={Colors.primary} />
           </TouchableOpacity>
         )}
 
         {isShowNextButton && (
-          <TouchableOpacity onPress={handleNextStep} style={styles.controlButton}>
+          <TouchableOpacity onPress={handleNextStep} style={styles.controlButton} disabled={isSaving}>
             <Ionicons name={isResting ? "play-forward" : "checkmark"} size={24} color={Colors.primary} />
           </TouchableOpacity>
         )}
@@ -141,6 +151,7 @@ const styles = StyleSheet.create({
   },
   containerControls: {
     flexDirection: "row",
+    alignItems: "center",
   },
   controlButton: {
     marginLeft: 16,

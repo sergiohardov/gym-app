@@ -11,7 +11,7 @@ export default function ExercisesList() {
       contentContainerStyle={styles.container}
       data={workout.exercises}
       renderItem={({ item, index }) => <ExercisesListItem exercise={item} exerciseListIndex={index} />}
-      keyExtractor={(item) => item.id.toString()}
+      keyExtractor={(item) => item._id.toString()}
     />
   );
 }

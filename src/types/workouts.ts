@@ -1,5 +1,5 @@
 import { Dispatch } from "react";
-import { Exercise, FullTemplateWorkout } from "./db";
+import { Exercise, FullTemplateWorkout, TemplateWorkout } from "./db";
 
 export type WorkoutCreateState = {
   name: string;
@@ -51,10 +51,12 @@ export type WorkoutSession = {
   title: string;
   complete: boolean;
   exercises: {
+    _id: string;
     id: number;
     title: string;
     complete: boolean;
     sets: {
+      _id: string;
       id: number;
       complete: boolean;
       weight: number | null;
@@ -64,8 +66,17 @@ export type WorkoutSession = {
   }[];
 };
 
+// Тип результата сохранения тренировки
+export interface SaveWorkoutResult {
+  success: boolean;
+  historyId?: number;
+  message?: string;
+  error?: string;
+}
+
 export interface WorkoutsSessionStore {
   workout: WorkoutSession;
+  templateWorkoutId: TemplateWorkout["id"] | null;
   currentExerciseIndex: number;
   currentSetIndex: number;
   durationTime: number;
@@ -79,6 +90,7 @@ export interface WorkoutsSessionStore {
   playerTitle: string;
   playerSubtitle: string;
   isLoading: boolean;
+  isSaving: boolean;
 
   loadWorkout: (fullWorkout: FullTemplateWorkout) => void;
   resetStore: () => void;
@@ -98,4 +110,6 @@ export interface WorkoutsSessionStore {
   isWorkoutCompleted: () => boolean;
   pauseRest: () => void;
   resumeRest: () => void;
+  saveWorkoutSession: (forced?: boolean) => Promise<SaveWorkoutResult>;
+  forceCompleteAndSave: () => Promise<SaveWorkoutResult>;
 }

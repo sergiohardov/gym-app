@@ -35,12 +35,12 @@ export default function TabsLayout() {
         />
 
         <Tabs.Screen
-          name="(exercises)"
+          name="(history)"
           options={{
-            title: "Упражнения",
+            title: "История",
             headerShown: false,
             tabBarIcon: ({ size, color, focused }) => (
-              <Ionicons name={focused ? "library" : "library-outline"} size={size} color={color} />
+              <Ionicons name={focused ? "document-text" : "document-text-outline"} size={size} color={color} />
             ),
           }}
         />

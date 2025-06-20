@@ -4,14 +4,16 @@ import Player from "@/components/workouts/session/Player";
 import { useWorkoutsSessionStore } from "@/stores/WorkoutsSessionStore";
 import { useLocalSearchParams, router } from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, View, Text, StyleSheet, Alert } from "react-native";
+import { ActivityIndicator, View, Text, StyleSheet, Alert, SafeAreaView } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { TemplateWorkoutsModel } from "db/models/template-workouts";
 
 export default function WorkoutsSessionScreen() {
   const { id } = useLocalSearchParams();
-  const [error, setError] = useState<string | null>(null);
   const { loadWorkout, resetStore, isLoading } = useWorkoutsSessionStore();
+  const [error, setError] = useState<string | null>(null);
+
+  // TODO: обработать сценарий кнопки назад и свайп назад может быть в хедере сделаить или в хуке и использовать тут и в хедере
 
   useEffect(() => {
     const loadWorkoutData = async () => {
@@ -22,7 +24,7 @@ export default function WorkoutsSessionScreen() {
 
       try {
         resetStore(); // Сбрасываем состояние store
-        
+
         const workoutId = parseInt(id);
         if (isNaN(workoutId)) {
           setError("Некорректный ID тренировки");
@@ -30,7 +32,7 @@ export default function WorkoutsSessionScreen() {
         }
 
         const workout = await TemplateWorkoutsModel.getFullById(workoutId);
-        
+
         if (!workout) {
           setError("Тренировка не найдена");
           return;
@@ -55,7 +57,7 @@ export default function WorkoutsSessionScreen() {
     return () => {
       resetStore();
     };
-  }, [id]);
+  }, [id, loadWorkout, resetStore]);
 
   // Обработка ошибок
   useEffect(() => {
@@ -66,13 +68,16 @@ export default function WorkoutsSessionScreen() {
         [
           {
             text: "Вернуться к списку",
-            onPress: () => router.back(),
+            onPress: () => {
+              resetStore();
+              router.back();
+            },
           },
         ],
         { cancelable: false }
       );
     }
-  }, [error]);
+  }, [error, resetStore]);
 
   // Показываем загрузку
   if (isLoading && !error) {
@@ -94,11 +99,11 @@ export default function WorkoutsSessionScreen() {
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1 }}>
       <Header />
       <ExercisesList />
       <Player />
-    </View>
+    </SafeAreaView>
   );
 }
 

@@ -1,10 +1,7 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import { View, Text } from "react-native";
+import React from "react";
+import EmptyScreen from "@/components/base/EmptyScreen";
 
 export default function HomeTabScreen() {
-  return (
-    <View>
-      <Text>HomeTabScreen</Text>
-    </View>
-  )
+  return <EmptyScreen icon="home-outline" title="В разработке" subtitle="Пока тут делать нечего (" />;
 }
