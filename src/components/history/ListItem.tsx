@@ -9,14 +9,10 @@ import { HistoryWorkout } from "@/types/db";
 
 // TODO: разобраться со стилями (падинги списка и карточек)
 export default function ListItem({
-  item,
-  index,
-  historyWorkoutId,
+  historyWorkout,
   onSwipeableWillOpen,
 }: {
-  item: any;
-  index: number;
-  historyWorkoutId: HistoryWorkout["id"];
+  historyWorkout: HistoryWorkout;
   onSwipeableWillOpen: (ref: SwipeableMethods) => void;
 }) {
   const swipeableRef = useRef(null);
@@ -36,140 +32,52 @@ export default function ListItem({
             justifyContent: "center",
             alignItems: "center",
           }}
-          onPress={async () => await HistoryWorkoutsModel.remove(historyWorkoutId)}
+          onPress={async () => await HistoryWorkoutsModel.remove(historyWorkout.id)}
         >
           <Ionicons name="trash" size={30} color={"red"} />
         </TouchableOpacity>
       )}
     >
-      <Card style={styles.historyCardContainer}>
-        <View style={styles.cardHeaderContainer}>
-          <View style={styles.cardTitleContainer}>
-            <Text style={styles.cardTitle} numberOfLines={2}>
-              {item.name}
-            </Text>
-            <View style={styles.cardDateContainer}>
-              <Text style={styles.cardDate}>{item?.createdAt.split(" ")[0]}</Text>
-              <Text style={styles.cardTime}>{item?.createdAt.split(" ")[1]}</Text>
-            </View>
+      <TouchableOpacity onPress={() => {}}>
+        <Card style={styles.container}>
+          <Text style={styles.title} numberOfLines={2}>
+            {historyWorkout.name}
+          </Text>
+          <View style={styles.dateContainer}>
+            <Text style={styles.dateText}>{historyWorkout.createdAt.split(" ")[0]}</Text>
+            <Text style={styles.timeText}>{historyWorkout.createdAt.split(" ")[1]}</Text>
           </View>
-
-          <View style={styles.cardBadge}>
-            <Text style={styles.cardBadgeText}>{index + 1}</Text>
-          </View>
-        </View>
-
-        <View style={styles.cardStats}>
-          <View style={styles.statItem}>
-            <View style={styles.statIconContainer}>
-              <Ionicons name="time" size={16} color={Colors.primary} />
-            </View>
-            <Text style={styles.statLabel}>Время</Text>
-            <Text style={styles.statValue}>{item.duration}c</Text>
-          </View>
-
-          <View style={styles.statItem}>
-            <View style={styles.statIconContainer}>
-              <Ionicons name="barbell" size={16} color={Colors.primary} />
-            </View>
-            <Text style={styles.statLabel}>Упражнения</Text>
-            <Text style={styles.statValue}>{item.exercises.length}</Text>
-          </View>
-
-          <View style={styles.statItem}>
-            <View style={styles.statIconContainer}>
-              <Ionicons name="fitness" size={16} color={Colors.primary} />
-            </View>
-            <Text style={styles.statLabel}>Подходы</Text>
-            <Text style={styles.statValue}>?</Text>
-          </View>
-
-          <View style={styles.statItem}>
-            <View style={styles.statIconContainer}>
-              <Ionicons name="trending-up" size={16} color={Colors.primary} />
-            </View>
-            <Text style={styles.statLabel}>Общий вес</Text>
-            <Text style={styles.statValue}>? кг</Text>
-          </View>
-        </View>
-      </Card>
+        </Card>
+      </TouchableOpacity>
     </ReanimatedSwipeable>
   );
 }
 
 const styles = StyleSheet.create({
-  historyCardContainer: {
+  container: {
+    flexDirection: "row",
+    alignItems: "center",
     gap: 16,
   },
-  cardHeaderContainer: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 12,
-  },
-  cardTitleContainer: {
+  title: {
     flex: 1,
-    gap: 4,
-  },
-  cardTitle: {
     fontSize: 18,
     fontWeight: "700",
     color: Colors.secondary,
     lineHeight: 22,
   },
-  cardDateContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
+  dateContainer: {
+    alignItems: "flex-end",
+    gap: 6,
   },
-  cardDate: {
+  dateText: {
     fontSize: 14,
     fontWeight: "500",
     color: Colors.surface,
   },
-  cardTime: {
+  timeText: {
     fontSize: 12,
     color: Colors.surface,
     opacity: 0.8,
-  },
-  cardBadge: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: Colors.surface,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  cardBadgeText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: Colors.primary,
-  },
-  cardStats: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  statItem: {
-    flex: 1,
-    alignItems: "center",
-    gap: 4,
-  },
-  statIconContainer: {
-    width: 24,
-    height: 24,
-    borderRadius: 6,
-    backgroundColor: Colors.surface,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  statLabel: {
-    fontSize: 10,
-    color: Colors.surface,
-    textAlign: "center",
-  },
-  statValue: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: Colors.secondary,
-    textAlign: "center",
   },
 });

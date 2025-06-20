@@ -8,19 +8,10 @@ import ListItem from "@/components/history/ListItem";
 import { SwipeableMethods } from "react-native-gesture-handler/lib/typescript/components/ReanimatedSwipeable";
 import { useRef } from "react";
 import EmptyScreen from "@/components/base/EmptyScreen";
+import { HistoryWorkout } from "@/types/db";
 
 export default function HistoryTabScreen() {
-  const { data }: { data: any } = useLiveQuery(
-    db.query.historyWorkouts.findMany({
-      with: {
-        exercises: {
-          with: {
-            sets: {},
-          },
-        },
-      },
-    })
-  );
+  const { data }: { data: HistoryWorkout[] } = useLiveQuery(db.query.historyWorkouts.findMany());
   const openedSwipeableRef = useRef<SwipeableMethods | null>(null);
 
   const handleSwipeableOpen = (ref: SwipeableMethods) => {
@@ -37,8 +28,8 @@ export default function HistoryTabScreen() {
         <FlatList
           data={data}
           // contentContainerStyle={styles.listContainer}
-          renderItem={({ item, index }: { item: any; index: number }) => (
-            <ListItem historyWorkoutId={item.id} item={item} index={index} onSwipeableWillOpen={handleSwipeableOpen} />
+          renderItem={({ item }: { item: HistoryWorkout }) => (
+            <ListItem historyWorkout={item} onSwipeableWillOpen={handleSwipeableOpen} />
           )}
           keyExtractor={(item) => item.id.toString()}
           showsVerticalScrollIndicator={false}
