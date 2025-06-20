@@ -23,6 +23,11 @@ export type FullTemplateWorkout = TemplateWorkout & {
 export type HistoryWorkout = typeof historyWorkouts.$inferSelect;
 export type HistoryExercise = typeof historyExercises.$inferSelect;
 export type HistorySet = typeof historySets.$inferSelect;
+export type FullHistoryWorkout = HistoryWorkout & {
+  exercises: (HistoryExercise & {
+    sets: HistorySet[];
+  })[];
+};
 
 export type NewExercise = typeof exercises.$inferInsert;
 export type NewTemplateWorkout = typeof templateWorkouts.$inferInsert;
