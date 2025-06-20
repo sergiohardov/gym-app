@@ -16,6 +16,7 @@ export default function ListItem({
   onSwipeableWillOpen: (ref: SwipeableMethods) => void;
 }) {
   const swipeableRef = useRef(null);
+  const workoutDate = new Date(historyWorkout.createdAt);
 
   return (
     <ReanimatedSwipeable
@@ -44,8 +45,19 @@ export default function ListItem({
             {historyWorkout.name}
           </Text>
           <View style={styles.dateContainer}>
-            <Text style={styles.dateText}>{historyWorkout.createdAt.split(" ")[0]}</Text>
-            <Text style={styles.timeText}>{historyWorkout.createdAt.split(" ")[1]}</Text>
+            <Text style={styles.timeText}>
+              {workoutDate.toLocaleTimeString("ru-RU", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </Text>
+            <Text style={styles.dateText}>
+              {workoutDate.toLocaleDateString("ru-RU", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </Text>
           </View>
         </Card>
       </TouchableOpacity>
@@ -70,12 +82,12 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     gap: 6,
   },
-  dateText: {
-    fontSize: 14,
+  timeText: {
+    fontSize: 16,
     fontWeight: "500",
     color: Colors.surface,
   },
-  timeText: {
+  dateText: {
     fontSize: 12,
     color: Colors.surface,
     opacity: 0.8,
