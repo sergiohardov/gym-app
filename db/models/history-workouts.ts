@@ -4,6 +4,7 @@ import {
   NewHistoryExercise,
   NewHistorySet,
   NewFullHistoryWorkout,
+  FullHistoryWorkout,
 } from "@/types/db";
 
 import { db } from "db/client";
@@ -29,7 +30,7 @@ export class HistoryWorkoutsModel {
   /**
    * Получить полную тренировку из истории со всеми упражнениями и подходами
    */
-  static async getFullById(id: HistoryWorkout["id"]) {
+  static async getFullById(id: HistoryWorkout["id"]): Promise<FullHistoryWorkout | null> {
     const result = await db.query.historyWorkouts.findFirst({
       where: eq(historyWorkouts.id, id),
       with: {
