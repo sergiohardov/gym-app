@@ -1,7 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { Colors } from "@/constants/Colors";
-import Card from "@/components/base/Card";
+import { View, StyleSheet, FlatList } from "react-native";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { db } from "db/client";
 import ListItem from "@/components/history/ListItem";
