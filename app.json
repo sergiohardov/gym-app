@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.gym-app"
+      "bundleIdentifier": "com.anonymous.gym-app-sh"
     },
     "android": {
       "adaptiveIcon": {
