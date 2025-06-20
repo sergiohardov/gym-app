@@ -6,6 +6,7 @@ import ReanimatedSwipeable, { SwipeableMethods } from "react-native-gesture-hand
 import { Colors } from "@/constants/Colors";
 import { HistoryWorkoutsModel } from "db/models/history-workouts";
 import { HistoryWorkout } from "@/types/db";
+import { router } from "expo-router";
 
 // TODO: разобраться со стилями (падинги списка и карточек)
 export default function ListItem({
@@ -39,7 +40,7 @@ export default function ListItem({
         </TouchableOpacity>
       )}
     >
-      <TouchableOpacity onPress={() => {}}>
+      <TouchableOpacity onPress={() => router.push(`details/${historyWorkout.id}`)}>
         <Card style={styles.container}>
           <Text style={styles.title} numberOfLines={2}>
             {historyWorkout.name}

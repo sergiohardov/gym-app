@@ -12,6 +12,13 @@ export default function HistoryTabLayout() {
         }}
       />
 
+      <Stack.Screen
+        name="details/[id]"
+        options={{
+          title: "Тренировка",
+          headerBackButtonDisplayMode: "generic",
+        }}
+      />
     </Stack>
   );
 }
