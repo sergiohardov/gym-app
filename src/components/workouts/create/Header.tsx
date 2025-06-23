@@ -12,7 +12,6 @@ export default function Header() {
       options={{
         title: "",
         headerTransparent: true,
-        headerShadowVisible: true,
         headerLeft: () => (
           <TouchableOpacity onPress={handleCancel} style={styles.closeButton}>
             <Ionicons name="close" size={24} color={Colors.secondary} />

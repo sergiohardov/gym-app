@@ -1,13 +1,4 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  SafeAreaView,
-  KeyboardAvoidingView,
-  Platform,
-  Keyboard,
-} from "react-native";
+import { View, Text, StyleSheet, ScrollView, Platform, Keyboard } from "react-native";
 import React from "react";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
@@ -18,95 +9,87 @@ import Header from "./Header";
 import Input from "@/components/base/Input";
 import WorkoutsCreateExercisesBottomSheet from "@/components/workouts/create/WorkoutsCreateExercisesBottomSheet";
 import WorkoutsCreateAddExerciseBottomSheet from "./WorkoutsCreateAddExerciseBottomSheet";
+import { useHeaderHeight } from "@react-navigation/elements";
 
 export default function WorkoutsCreateScreen() {
   const { state, dispatch } = useWorkoutsCreateContext();
+  const headerHeight = useHeaderHeight();
 
   return (
     <View style={styles.container}>
       <Header />
 
-      <SafeAreaView style={styles.mainContainer}>
-        <KeyboardAvoidingView
-          style={styles.keyboardAvoidingView}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
-        >
-          <ScrollView
-            style={styles.scrollView}
-            contentContainerStyle={styles.scrollContainer}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-            automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
-          >
-            <View style={styles.headerContainer}>
-              <Text style={styles.headerTitle}>Создание тренировки</Text>
-              <Text style={styles.headerSubtitle}>Настройте упражнения и подходы для эффективной тренировки</Text>
-            </View>
+      <ScrollView
+        style={[styles.scrollView, { paddingTop: headerHeight }]}
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
+      >
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerTitle}>Создание тренировки</Text>
+          <Text style={styles.headerSubtitle}>Настройте упражнения и подходы для эффективной тренировки</Text>
+        </View>
 
-            <View style={styles.contentContainer}>
-              <View style={styles.sectionCard}>
-                <View style={styles.sectionHeader}>
-                  <View style={styles.sectionIcon}>
-                    <Ionicons name="pencil" size={20} color={Colors.primary} />
-                  </View>
-
-                  <View style={styles.sectionTitleContainer}>
-                    <Text style={styles.sectionTitleText}>Название тренировки</Text>
-                  </View>
-                </View>
-
-                <Input
-                  placeholder="Например: Тренировка груди и трицепса"
-                  value={state.name}
-                  setValue={(value) => dispatch({ type: "SET_NAME", payload: value })}
-                />
+        <View style={styles.contentContainer}>
+          <View style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionIcon}>
+                <Ionicons name="pencil" size={20} color={Colors.primary} />
               </View>
 
-              <View style={styles.sectionCard}>
-                <View style={styles.sectionHeader}>
-                  <View style={styles.sectionIcon}>
-                    <Ionicons name="barbell" size={20} color={Colors.primary} />
-                  </View>
-
-                  <View style={styles.sectionTitleContainer}>
-                    <Text style={styles.sectionTitleText}>Упражнения</Text>
-
-                    <View style={styles.sectionTitleBadge}>
-                      <Text style={styles.sectionTitleBadgeText}>{state.exercises.length}</Text>
-                    </View>
-                  </View>
-                </View>
-
-                {state.exercises.length === 0 ? (
-                  <View style={styles.emptyContainer}>
-                    <Ionicons name="fitness-outline" size={48} color={Colors.surface} />
-                    <Text style={styles.emptyTitle}>Упражнения не добавлены</Text>
-                    <Text style={styles.emptySubtitle}>
-                      Добавьте первое упражнение, чтобы начать создание тренировки
-                    </Text>
-                  </View>
-                ) : (
-                  <View style={styles.exercisesContainer}>
-                    {state.exercises.map((exercise, exerciseIndex) => (
-                      <WorkoutExerciseCard key={exercise._id} exercise={exercise} exerciseIndex={exerciseIndex} />
-                    ))}
-                  </View>
-                )}
-
-                <Button
-                  title="Добавить упражнение"
-                  icon={<Ionicons name="add" size={20} color={Colors.primary} />}
-                  callback={() => {
-                    Keyboard.dismiss();
-                    dispatch({ type: "SHOW_MODAL" });
-                  }}
-                />
+              <View style={styles.sectionTitleContainer}>
+                <Text style={styles.sectionTitleText}>Название тренировки</Text>
               </View>
             </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
+
+            <Input
+              placeholder="Например: Тренировка груди и трицепса"
+              value={state.name}
+              setValue={(value) => dispatch({ type: "SET_NAME", payload: value })}
+            />
+          </View>
+
+          <View style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionIcon}>
+                <Ionicons name="barbell" size={20} color={Colors.primary} />
+              </View>
+
+              <View style={styles.sectionTitleContainer}>
+                <Text style={styles.sectionTitleText}>Упражнения</Text>
+
+                <View style={styles.sectionTitleBadge}>
+                  <Text style={styles.sectionTitleBadgeText}>{state.exercises.length}</Text>
+                </View>
+              </View>
+            </View>
+
+            {state.exercises.length === 0 ? (
+              <View style={styles.emptyContainer}>
+                <Ionicons name="fitness-outline" size={48} color={Colors.surface} />
+                <Text style={styles.emptyTitle}>Упражнения не добавлены</Text>
+                <Text style={styles.emptySubtitle}>Добавьте первое упражнение, чтобы начать создание тренировки</Text>
+              </View>
+            ) : (
+              <View style={styles.exercisesContainer}>
+                {state.exercises.map((exercise, exerciseIndex) => (
+                  <WorkoutExerciseCard key={exercise._id} exercise={exercise} exerciseIndex={exerciseIndex} />
+                ))}
+              </View>
+            )}
+
+            <Button
+              title="Добавить упражнение"
+              icon={<Ionicons name="add" size={20} color={Colors.primary} />}
+              callback={() => {
+                Keyboard.dismiss();
+                dispatch({ type: "SHOW_MODAL" });
+              }}
+            />
+          </View>
+        </View>
+      </ScrollView>
 
       <WorkoutsCreateExercisesBottomSheet />
       <WorkoutsCreateAddExerciseBottomSheet />
@@ -118,18 +101,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  mainContainer: {
-    flex: 1,
-  },
-  keyboardAvoidingView: {
-    flex: 1,
-  },
   scrollView: {
     flex: 1,
   },
   scrollContainer: {
-    paddingTop: 20,
-    paddingBottom: 32,
+    paddingTop: 16,
+    paddingBottom: 16,
     paddingHorizontal: 16,
     gap: 20,
     flexGrow: 1,
