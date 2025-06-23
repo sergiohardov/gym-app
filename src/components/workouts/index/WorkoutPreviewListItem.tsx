@@ -41,17 +41,31 @@ export default function WorkoutPreviewListItem({ workoutId, onSwipeableWillOpen 
         if (swipeableRef.current) onSwipeableWillOpen(swipeableRef.current);
       }}
       renderRightActions={() => (
-        <TouchableOpacity
-          style={{
-            marginRight: 16,
-            padding: 5,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-          onPress={async () => await TemplateWorkoutsModel.remove(workoutId)}
-        >
-          <Ionicons name="trash" size={30} color={"red"} />
-        </TouchableOpacity>
+        <>
+          <TouchableOpacity
+            style={{
+              marginRight: 16,
+              padding: 5,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            onPress={async () => await TemplateWorkoutsModel.remove(workoutId)}
+          >
+            <Ionicons name="trash" size={30} color={"red"} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={{
+              marginRight: 16,
+              padding: 5,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            onPress={() => router.push(`edit/${workout?.id}`)}
+          >
+            <Ionicons name="pencil" size={30} color={Colors.secondary} />
+          </TouchableOpacity>
+        </>
       )}
     >
       <View style={styles.container}>
