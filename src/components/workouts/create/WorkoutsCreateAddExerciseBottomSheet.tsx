@@ -1,9 +1,9 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Alert, Keyboard } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 import { useWorkoutsCreateContext } from "@/contexts/WorkoutsCreateContext";
-import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop, BottomSheetTextInput } from "@gorhom/bottom-sheet";
+import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
 import Button from "@/components/base/Button";
 import { ExercisesModel } from "db/models/exercises";
 import InputBottomSheet from "@/components/base/InputBottomSheet";
@@ -19,6 +19,7 @@ export default function WorkoutsCreateAddExerciseBottomSheet() {
   const handleClose = useCallback(() => {
     dispatch({ type: "HIDE_CREATE_EXERCISE_MODAL" });
     setTitle("");
+    Keyboard.dismiss();
     bottomSheetModalRef.current?.dismiss();
   }, [dispatch]);
 
@@ -75,6 +76,7 @@ export default function WorkoutsCreateAddExerciseBottomSheet() {
     if (state.createExerciseModalVisible) {
       bottomSheetModalRef.current?.present();
     } else {
+      Keyboard.dismiss();
       bottomSheetModalRef.current?.dismiss();
     }
   }, [state.createExerciseModalVisible]);
@@ -110,7 +112,12 @@ export default function WorkoutsCreateAddExerciseBottomSheet() {
         <View style={styles.contentContainer}>
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Название упражнения</Text>
-            <InputBottomSheet placeholder="Например: Жим штанги лежа" value={title} setValue={setTitle} />
+            <InputBottomSheet
+              placeholder="Например: Жим штанги лежа"
+              value={title}
+              setValue={setTitle}
+              autofocus={true}
+            />
           </View>
 
           <View style={styles.buttonsContainer}>
