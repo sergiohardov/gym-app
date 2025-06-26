@@ -1,17 +1,25 @@
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from "react-native";
-import { Colors } from "@/constants/Colors";
+import { View, FlatList, StyleSheet } from "react-native";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { db } from "db/client";
-import WorkoutPreviewListItem from "@/components/workouts/index/WorkoutPreviewListItem";
-import { useRef } from "react";
+import PreviewListItem from "@/components/workouts/index/PreviewListItem";
+import { useRef, useState } from "react";
 import { SwipeableMethods } from "react-native-gesture-handler/lib/typescript/components/ReanimatedSwipeable";
-import { TemplateWorkout } from "@/types/db";
 import EmptyScreen from "@/components/base/EmptyScreen";
+import CreateBottomSheet from "@/components/workouts/index/CreateBottomSheet";
+import Header from "@/components/workouts/index/Header";
 
 export default function WorkoutsTabScreen() {
-  const { data }: { data: TemplateWorkout[] } = useLiveQuery(db.query.templateWorkouts.findMany());
-
+  const [isBottomSheetVisible, setIsBottomSheetVisible] = useState<boolean>(false);
   const openedSwipeableRef = useRef<SwipeableMethods | null>(null);
+
+  // TODO: задать типы
+  const { data } = useLiveQuery(
+    db.query.templateWorkouts.findMany({
+      with: {
+        templateExercises: {},
+      },
+    })
+  );
 
   const handleSwipeableOpen = (ref: SwipeableMethods) => {
     if (openedSwipeableRef.current && openedSwipeableRef.current !== ref) {
@@ -22,47 +30,56 @@ export default function WorkoutsTabScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      {data.length ? (
-        <FlatList
-          style={styles.list}
-          contentContainerStyle={styles.listContent}
-          data={data}
-          renderItem={({ item }) => (
-            <WorkoutPreviewListItem workoutId={item.id} onSwipeableWillOpen={handleSwipeableOpen} />
-          )}
-          onScrollBeginDrag={() => {
-            if (openedSwipeableRef.current) {
-              openedSwipeableRef.current.close();
-              openedSwipeableRef.current = null;
-            }
-          }}
-        />
-      ) : (
-        <EmptyScreen icon="barbell-outline" title="Тренировок не создано" subtitle="Создайте свою первую тренировку." />
-      )}
-    </View>
+    <>
+      <Header setIsBottomSheetVisible={setIsBottomSheetVisible} />
+
+      <View style={styles.container}>
+        {data.length ? (
+          <FlatList
+            style={styles.listContainer}
+            contentContainerStyle={styles.listContentContainer}
+            data={data}
+            renderItem={({ item }) => (
+              <PreviewListItem
+                workoutId={item.id}
+                workoutName={item.name}
+                exercisesCount={item.templateExercises.length}
+                onSwipeableWillOpen={handleSwipeableOpen}
+              />
+            )}
+            onScrollBeginDrag={() => {
+              if (openedSwipeableRef.current) {
+                openedSwipeableRef.current.close();
+                openedSwipeableRef.current = null;
+              }
+            }}
+          />
+        ) : (
+          <EmptyScreen
+            icon="barbell-outline"
+            title="Тренировок не создано"
+            subtitle="Создайте свою первую тренировку."
+          />
+        )}
+      </View>
+
+      <CreateBottomSheet
+        isBottomSheetVisible={isBottomSheetVisible}
+        setIsBottomSheetVisible={setIsBottomSheetVisible}
+      />
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  listContainer: {
+    flex: 1,
     paddingVertical: 16,
   },
-  list: {
-    flex: 1,
-  },
-  listContent: {
+  listContentContainer: {
     gap: 16,
-  },
-  listItem: {
-    backgroundColor: Colors.primary,
-    padding: 15,
-    borderRadius: 5,
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
   },
 });

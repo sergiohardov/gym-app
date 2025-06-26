@@ -1,39 +1,27 @@
-import React, { useEffect, useRef, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from "react-native";
+import { useRef } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 import ReanimatedSwipeable, { SwipeableMethods } from "react-native-gesture-handler/ReanimatedSwipeable";
 import { router } from "expo-router";
-import { FullTemplateWorkout, TemplateWorkout } from "@/types/db";
+import { TemplateWorkout } from "@/types/db";
 import { TemplateWorkoutsModel } from "db/models/template-workouts";
 
-type WorkoutPreviewListItemProps = {
+type PreviewListItemProps = {
   workoutId: TemplateWorkout["id"];
+  workoutName: TemplateWorkout["name"];
+  exercisesCount: number;
   onSwipeableWillOpen: (ref: SwipeableMethods) => void;
 };
 
-export default function WorkoutPreviewListItem({ workoutId, onSwipeableWillOpen }: WorkoutPreviewListItemProps) {
-  const [workout, setWorkout] = useState<FullTemplateWorkout | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(true);
+export default function PreviewListItem({
+  workoutId,
+  exercisesCount,
+  workoutName,
+  onSwipeableWillOpen,
+}: PreviewListItemProps) {
   const swipeableRef = useRef(null);
-
-  useEffect(() => {
-    const fetchWorkout = async () => {
-      try {
-        setIsLoading(true);
-        const data = await TemplateWorkoutsModel.getFullById(workoutId);
-        if (data) {
-          setWorkout(data);
-        }
-      } catch (error) {
-        console.error("Ошибка загрузки тренировки:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchWorkout();
-  }, [workoutId]);
+  const hasExercises = exercisesCount > 0;
 
   const handleDelete = async () => {
     Alert.alert("Удалить тренировку?", "Это действие нельзя отменить", [
@@ -56,13 +44,9 @@ export default function WorkoutPreviewListItem({ workoutId, onSwipeableWillOpen 
     router.push(`edit/${workoutId}`);
   };
 
-  if (isLoading) {
-    return (
-      <View style={{ flex: 1 }}>
-        <ActivityIndicator size="small" color={Colors.secondary} />
-      </View>
-    );
-  }
+  const handleStart = () => {
+    router.push(`session/${workoutId}`);
+  };
 
   return (
     <ReanimatedSwipeable
@@ -72,37 +56,42 @@ export default function WorkoutPreviewListItem({ workoutId, onSwipeableWillOpen 
         if (swipeableRef.current) onSwipeableWillOpen(swipeableRef.current);
       }}
       renderRightActions={() => (
-        <>
-          <TouchableOpacity style={styles.swipeButton} onPress={handleDelete}>
-            <Ionicons name="trash" size={24} color="red" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.swipeButton} onPress={handleEdit}>
-            <Ionicons name="pencil" size={24} color={Colors.secondary} />
-          </TouchableOpacity>
-        </>
+        <TouchableOpacity style={styles.swipeButton} onPress={handleDelete}>
+          <Ionicons name="trash" size={24} color="red" />
+        </TouchableOpacity>
       )}
     >
-      <View style={styles.container}>
+      <TouchableOpacity style={styles.container} onPress={handleEdit}>
         <View style={styles.content}>
-          <Text style={styles.title}>{workout?.name}</Text>
+          <Text style={styles.title}>{workoutName}</Text>
 
           <View style={styles.detailsContainer}>
-            <View style={styles.detailItem}>
-              <Ionicons name="barbell-outline" size={18} color="#666" />
-              <Text style={styles.detailText}>{workout?.templateExercises.length} упражнений</Text>
-            </View>
-
-            <View style={styles.detailItem}>
-              <Ionicons name="time-outline" size={18} color="#666" />
-              <Text style={styles.detailText}>45 мин</Text>
-            </View>
+            {hasExercises ? (
+              <>
+                <View style={styles.detailItem}>
+                  <Ionicons name="barbell-outline" size={18} color={Colors.surface} />
+                  <Text style={styles.detailText}>
+                    {exercisesCount} {exercisesCount === 1 ? "упражнение" : "упражнений"}
+                  </Text>
+                </View>
+                <View style={styles.detailItem}>
+                  <Ionicons name="time-outline" size={18} color={Colors.surface} />
+                  <Text style={styles.detailText}>45 мин</Text>
+                </View>
+              </>
+            ) : (
+              <View style={styles.detailItem}>
+                <Ionicons name="warning-outline" size={18} color={Colors.surface} />
+                <Text style={styles.detailText}>Добавьте упражнения</Text>
+              </View>
+            )}
           </View>
         </View>
 
-        <TouchableOpacity style={styles.playButton} onPress={() => router.push(`session/${workout?.id}`)}>
-          <Ionicons name="play" size={24} color="white" />
+        <TouchableOpacity style={styles.playButton} onPress={hasExercises ? handleStart : handleEdit}>
+          <Ionicons name={hasExercises ? "play" : "add"} size={24} color="white" />
         </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
     </ReanimatedSwipeable>
   );
 }

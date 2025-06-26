@@ -1,4 +1,4 @@
-import { TouchableOpacity, View } from "react-native";
+import { TouchableOpacity } from "react-native";
 import { router, Stack } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Colors } from "@/constants/Colors";
@@ -19,9 +19,10 @@ export default function ExercisesTabLayout() {
       />
 
       <Stack.Screen
-        name="create"
+        name="edit/[id]"
         options={{
-          title: "Новая Тренировка",
+          title: "Редактировать",
+          headerBackButtonDisplayMode: "generic",
         }}
       />
 
