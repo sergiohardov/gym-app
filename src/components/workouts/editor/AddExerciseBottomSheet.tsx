@@ -2,14 +2,14 @@ import React, { useState, useCallback, useRef, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Alert, Keyboard } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
-import { useWorkoutsCreateContext } from "@/contexts/WorkoutsCreateContext";
+import { useWorkoutsEditorContext } from "@/contexts/WorkoutsEditorContext";
 import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
 import Button from "@/components/base/Button";
 import { ExercisesModel } from "db/models/exercises";
 import InputBottomSheet from "@/components/base/InputBottomSheet";
 
-export default function WorkoutsCreateAddExerciseBottomSheet() {
-  const { state, dispatch, refetchExercises } = useWorkoutsCreateContext();
+export default function AddExerciseBottomSheet() {
+  const { state, dispatch, fetchExercises } = useWorkoutsEditorContext();
   const [title, setTitle] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -17,7 +17,7 @@ export default function WorkoutsCreateAddExerciseBottomSheet() {
   const snapPoints = ["40%"];
 
   const handleClose = useCallback(() => {
-    dispatch({ type: "HIDE_CREATE_EXERCISE_MODAL" });
+    dispatch({ type: "HIDE_EXERCISE_CREATE_MODAL" });
     setTitle("");
     Keyboard.dismiss();
     bottomSheetModalRef.current?.dismiss();
@@ -44,14 +44,14 @@ export default function WorkoutsCreateAddExerciseBottomSheet() {
 
       if (response.id) {
         // Обновляем список упражнений в контексте
-        await refetchExercises();
+        await fetchExercises();
 
         Alert.alert("Успех", "Упражнение успешно создано", [
           {
             text: "OK",
             onPress: () => {
               setTitle("");
-              dispatch({ type: "HIDE_CREATE_EXERCISE_MODAL" });
+              dispatch({ type: "HIDE_EXERCISE_CREATE_MODAL" });
             },
           },
         ]);
@@ -70,16 +70,16 @@ export default function WorkoutsCreateAddExerciseBottomSheet() {
     } finally {
       setIsLoading(false);
     }
-  }, [title, dispatch, refetchExercises]);
+  }, [title, dispatch, fetchExercises]);
 
   useEffect(() => {
-    if (state.createExerciseModalVisible) {
+    if (state.modalExerciseCreateVisible) {
       bottomSheetModalRef.current?.present();
     } else {
       Keyboard.dismiss();
       bottomSheetModalRef.current?.dismiss();
     }
-  }, [state.createExerciseModalVisible]);
+  }, [state.modalExerciseCreateVisible]);
 
   const renderBackdrop = useCallback(
     (props: any) => (

@@ -1,7 +1,7 @@
 import { Dispatch } from "react";
 import { Exercise, FullTemplateWorkout, TemplateWorkout } from "./db";
 
-export type WorkoutCreateState = {
+export type WorkoutsEditorState = {
   name: string;
   exercises: {
     _id: string;
@@ -13,12 +13,18 @@ export type WorkoutCreateState = {
       rest: string;
     }[];
   }[];
-  modalVisible: boolean;
-  createExerciseModalVisible: boolean;
+  isEditMode: boolean;
+  isLoading: boolean;
+  workoutId: number | null;
+  modalExerciseListVisible: boolean;
+  modalExerciseCreateVisible: boolean;
 };
 
-export type WorkoutCreateAction =
+export type WorkoutsEditorAction =
   | { type: "SET_NAME"; payload: string }
+  | { type: "SET_WORKOUT_ID"; payload: number | null }
+  | { type: "SET_IS_EDIT_MODE"; payload: boolean }
+  | { type: "LOAD_WORKOUT"; payload: FullTemplateWorkout }
   | { type: "ADD_EXERCISE"; payload: Exercise }
   | { type: "ADD_EXERCISE_SET"; payload: { _id: string } }
   | {
@@ -26,25 +32,26 @@ export type WorkoutCreateAction =
       payload: {
         exerciseId: string;
         setId: string;
-        field: keyof WorkoutCreateState["exercises"][number]["sets"][number];
-        value: WorkoutCreateState["exercises"][number]["sets"][number][keyof WorkoutCreateState["exercises"][number]["sets"][number]];
+        field: keyof WorkoutsEditorState["exercises"][number]["sets"][number];
+        value: WorkoutsEditorState["exercises"][number]["sets"][number][keyof WorkoutsEditorState["exercises"][number]["sets"][number]];
       };
     }
   | { type: "REMOVE_EXERCISE_SET"; payload: { exerciseId: string; setId: string } }
   | { type: "REMOVE_EXERCISE"; payload: { _id: string } }
-  | { type: "SHOW_MODAL" }
-  | { type: "HIDE_MODAL" }
-  | { type: "SHOW_CREATE_EXERCISE_MODAL" }
-  | { type: "HIDE_CREATE_EXERCISE_MODAL" }
+  | { type: "SHOW_EXERCISE_LIST_MODAL" }
+  | { type: "HIDE_EXERCISE_LIST_MODAL" }
+  | { type: "SHOW_EXERCISE_CREATE_MODAL" }
+  | { type: "HIDE_EXERCISE_CREATE_MODAL" }
   | { type: "RESET" };
 
-export interface WorkoutCreateContextProps {
-  state: WorkoutCreateState;
-  dispatch: Dispatch<WorkoutCreateAction>;
+export interface WorkoutsEditorContextProps {
+  isLoading: boolean;
   exercises: Exercise[];
+  state: WorkoutsEditorState;
+  dispatch: Dispatch<WorkoutsEditorAction>;
   handleCancel: () => void;
   handleSave: () => void;
-  refetchExercises: () => void;
+  fetchExercises: () => void;
 }
 
 export type WorkoutSession = {

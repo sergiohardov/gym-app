@@ -2,17 +2,17 @@ import { View, Text, StyleSheet, ScrollView, Platform, Keyboard } from "react-na
 import React from "react";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
-import { useWorkoutsCreateContext } from "@/contexts/WorkoutsCreateContext";
+import { useWorkoutsEditorContext } from "@/contexts/WorkoutsEditorContext";
 import Button from "@/components/base/Button";
-import WorkoutExerciseCard from "@/components/workouts/create/WorkoutsCreateExerciseCard";
+import ExerciseCard from "@/components/workouts/editor/ExerciseCard";
 import Header from "./Header";
 import Input from "@/components/base/Input";
-import WorkoutsCreateExercisesBottomSheet from "@/components/workouts/create/WorkoutsCreateExercisesBottomSheet";
-import WorkoutsCreateAddExerciseBottomSheet from "./WorkoutsCreateAddExerciseBottomSheet";
+import ExercisesBottomSheet from "@/components/workouts/editor/ExercisesBottomSheet";
+import AddExerciseBottomSheet from "./AddExerciseBottomSheet";
 import { useHeaderHeight } from "@react-navigation/elements";
 
-export default function WorkoutsCreateScreen() {
-  const { state, dispatch } = useWorkoutsCreateContext();
+export default function EditorScreen() {
+  const { state, dispatch } = useWorkoutsEditorContext();
   const headerHeight = useHeaderHeight();
 
   return (
@@ -27,7 +27,7 @@ export default function WorkoutsCreateScreen() {
         automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
       >
         <View style={styles.headerContainer}>
-          <Text style={styles.headerTitle}>Создание тренировки</Text>
+          <Text style={styles.headerTitle}>{state.isEditMode ? "Редактирование" : "Создание"} тренировки</Text>
           <Text style={styles.headerSubtitle}>Настройте упражнения и подходы для эффективной тренировки</Text>
         </View>
 
@@ -74,7 +74,7 @@ export default function WorkoutsCreateScreen() {
             ) : (
               <View style={styles.exercisesContainer}>
                 {state.exercises.map((exercise, exerciseIndex) => (
-                  <WorkoutExerciseCard key={exercise._id} exercise={exercise} exerciseIndex={exerciseIndex} />
+                  <ExerciseCard key={exercise._id} exercise={exercise} exerciseIndex={exerciseIndex} />
                 ))}
               </View>
             )}
@@ -84,15 +84,15 @@ export default function WorkoutsCreateScreen() {
               icon={<Ionicons name="add" size={20} color={Colors.primary} />}
               callback={() => {
                 Keyboard.dismiss();
-                dispatch({ type: "SHOW_MODAL" });
+                dispatch({ type: "SHOW_EXERCISE_LIST_MODAL" });
               }}
             />
           </View>
         </View>
       </ScrollView>
 
-      <WorkoutsCreateExercisesBottomSheet />
-      <WorkoutsCreateAddExerciseBottomSheet />
+      <ExercisesBottomSheet />
+      <AddExerciseBottomSheet />
     </View>
   );
 }

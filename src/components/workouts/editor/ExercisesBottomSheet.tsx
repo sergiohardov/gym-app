@@ -2,14 +2,14 @@ import React, { useState, useCallback, useRef, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
-import { useWorkoutsCreateContext } from "@/contexts/WorkoutsCreateContext";
+import { useWorkoutsEditorContext } from "@/contexts/WorkoutsEditorContext";
 import { BottomSheetModal, BottomSheetBackdrop, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import { Exercise } from "@/types/db";
 import Button from "@/components/base/Button";
 import InputBottomSheet from "@/components/base/InputBottomSheet";
 
-export default function WorkoutsCreateExercisesBottomSheet() {
-  const { state, dispatch, exercises } = useWorkoutsCreateContext();
+export default function ExercisesBottomSheet() {
+  const { state, dispatch, exercises } = useWorkoutsEditorContext();
   const [searchQuery, setSearchQuery] = useState("");
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
@@ -31,19 +31,19 @@ export default function WorkoutsCreateExercisesBottomSheet() {
   );
 
   const handleClose = useCallback(() => {
-    dispatch({ type: "HIDE_MODAL" });
+    dispatch({ type: "HIDE_EXERCISE_LIST_MODAL" });
     setSearchQuery("");
     bottomSheetModalRef.current?.dismiss();
   }, [dispatch]);
 
   const handleCreateExercise = useCallback(() => {
-    dispatch({ type: "SHOW_CREATE_EXERCISE_MODAL" });
+    dispatch({ type: "SHOW_EXERCISE_CREATE_MODAL" });
   }, [dispatch]);
 
   const handleSheetChanges = useCallback(
     (index: number) => {
       if (index === -1) {
-        dispatch({ type: "HIDE_MODAL" });
+        dispatch({ type: "HIDE_EXERCISE_LIST_MODAL" });
         setSearchQuery("");
       }
     },
@@ -52,12 +52,12 @@ export default function WorkoutsCreateExercisesBottomSheet() {
 
   // Используем useEffect для открытия/закрытия модального окна
   useEffect(() => {
-    if (state.modalVisible) {
+    if (state.modalExerciseListVisible) {
       bottomSheetModalRef.current?.present();
     } else {
       bottomSheetModalRef.current?.dismiss();
     }
-  }, [state.modalVisible]);
+  }, [state.modalExerciseListVisible]);
 
   const renderBackdrop = useCallback(
     (props: any) => (

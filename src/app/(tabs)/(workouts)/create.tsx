@@ -1,10 +1,10 @@
-import { WorkoutsCreateProvider } from "@/contexts/WorkoutsCreateContext";
-import WorkoutCreateScreen from "@/components/workouts/create/WorkoutsCreateScreen";
+import WorkoutsEditorScreen from "@/components/workouts/editor/EditorScreen";
+import { WorkoutsEditorProvider } from "@/contexts/WorkoutsEditorContext";
 
-export default function WorkoutCreate() {
+export default function WorkoutsCreateScreen() {
   return (
-    <WorkoutsCreateProvider>
-      <WorkoutCreateScreen />
-    </WorkoutsCreateProvider>
+    <WorkoutsEditorProvider>
+      <WorkoutsEditorScreen />
+    </WorkoutsEditorProvider>
   );
 }

@@ -1,10 +1,10 @@
-import { View, Text } from "react-native";
-import React from "react";
+import WorkoutsEditorScreen from "@/components/workouts/editor/EditorScreen";
+import { WorkoutsEditorProvider } from "@/contexts/WorkoutsEditorContext";
 
-export default function WorkoutsEdit() {
+export default function WorkoutsEditScreen() {
   return (
-    <View>
-      <Text>WorkoutsEdit</Text>
-    </View>
+    <WorkoutsEditorProvider>
+      <WorkoutsEditorScreen />
+    </WorkoutsEditorProvider>
   );
 }

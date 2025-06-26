@@ -1,11 +1,11 @@
 import { Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack } from "expo-router";
-import { useWorkoutsCreateContext } from "@/contexts/WorkoutsCreateContext";
+import { useWorkoutsEditorContext } from "@/contexts/WorkoutsEditorContext";
 import { Colors } from "@/constants/Colors";
 
 export default function Header() {
-  const { handleCancel, handleSave } = useWorkoutsCreateContext();
+  const { handleCancel, handleSave } = useWorkoutsEditorContext();
 
   return (
     <Stack.Screen
