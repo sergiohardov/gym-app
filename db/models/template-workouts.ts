@@ -1,4 +1,11 @@
-import { FullTemplateWorkout, NewFullTemplateWorkout, NewTemplateExercise, NewTemplateSet, NewTemplateWorkout, TemplateWorkout } from "@/types/db";
+import {
+  FullTemplateWorkout,
+  NewFullTemplateWorkout,
+  NewTemplateExercise,
+  NewTemplateSet,
+  NewTemplateWorkout,
+  TemplateWorkout,
+} from "@/types/db";
 import { db } from "db/client";
 import { templateExercises, templateSets, templateWorkouts } from "db/schema";
 import { asc, desc, eq, sql } from "drizzle-orm";
@@ -131,6 +138,72 @@ export class TemplateWorkoutsModel {
     const [updated] = await db.update(templateWorkouts).set(data).where(eq(templateWorkouts.id, id)).returning();
 
     return updated || null;
+  }
+
+  /**
+   * Обновить полный шаблон тренировки (заменить все упражнения и подходы)
+   */
+  static async updateFull(
+    id: TemplateWorkout["id"],
+    data: NewFullTemplateWorkout
+  ): Promise<{ id: TemplateWorkout["id"] } | null> {
+    return await db.transaction(async (tx) => {
+      // 1. Обновляем основную информацию тренировки
+      const [updatedWorkout] = await tx
+        .update(templateWorkouts)
+        .set({ name: data.name })
+        .where(eq(templateWorkouts.id, id))
+        .returning({ id: templateWorkouts.id });
+
+      if (!updatedWorkout.id) {
+        throw new Error("Failed to update template workout");
+      }
+
+      // 2. Удаляем все старые упражнения (каскадно удалятся и подходы)
+      await tx.delete(templateExercises).where(eq(templateExercises.templateWorkoutId, id));
+
+      // 3. Создаем новые упражнения
+      if (data.exercises.length > 0) {
+        const templateExercisesData: NewTemplateExercise[] = data.exercises.map((exercise, index) => ({
+          templateWorkoutId: id,
+          exerciseId: exercise.exerciseId,
+          order: index + 1,
+        }));
+
+        const createdTemplateExercises = await tx
+          .insert(templateExercises)
+          .values(templateExercisesData)
+          .returning({ id: templateExercises.id });
+
+        // 4. Создаем новые подходы
+        const templateSetsData: NewTemplateSet[] = data.exercises.reduce<NewTemplateSet[]>(
+          (acc, exercise, exerciseIndex) => {
+            const templateExerciseId = createdTemplateExercises[exerciseIndex].id;
+
+            if (!templateExerciseId) {
+              throw new Error(`Failed to get template exercise ID for exercise ${exerciseIndex}`);
+            }
+
+            const sets: NewTemplateSet[] = exercise.sets.map((set, setIndex) => ({
+              templateExerciseId: templateExerciseId,
+              order: setIndex + 1,
+              weight: set.weight,
+              reps: set.reps,
+              rest: set.rest,
+            }));
+
+            return [...acc, ...sets];
+          },
+          []
+        );
+
+        if (templateSetsData.length > 0) {
+          await tx.insert(templateSets).values(templateSetsData);
+        }
+      }
+
+      return { id: updatedWorkout.id };
+    });
   }
 
   /**

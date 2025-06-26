@@ -1,15 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 import ReanimatedSwipeable, { SwipeableMethods } from "react-native-gesture-handler/ReanimatedSwipeable";
 import { router } from "expo-router";
 import { FullTemplateWorkout, TemplateWorkout } from "@/types/db";
 import { TemplateWorkoutsModel } from "db/models/template-workouts";
-
-// TODO: Replace type props to workouts.ts
-// TODO: When data undefined or broken add logic for catch in use effect
-// TODO: Create link to session workout
 
 type WorkoutPreviewListItemProps = {
   workoutId: TemplateWorkout["id"];
@@ -18,20 +14,55 @@ type WorkoutPreviewListItemProps = {
 
 export default function WorkoutPreviewListItem({ workoutId, onSwipeableWillOpen }: WorkoutPreviewListItemProps) {
   const [workout, setWorkout] = useState<FullTemplateWorkout | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
   const swipeableRef = useRef(null);
 
   useEffect(() => {
     const fetchWorkout = async () => {
       try {
+        setIsLoading(true);
         const data = await TemplateWorkoutsModel.getFullById(workoutId);
         if (data) {
           setWorkout(data);
         }
-      } catch (error) {}
+      } catch (error) {
+        console.error("Ошибка загрузки тренировки:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchWorkout();
-  }, []);
+  }, [workoutId]);
+
+  const handleDelete = async () => {
+    Alert.alert("Удалить тренировку?", "Это действие нельзя отменить", [
+      { text: "Отмена", style: "cancel" },
+      {
+        text: "Удалить",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await TemplateWorkoutsModel.remove(workoutId);
+          } catch (error) {
+            Alert.alert("Ошибка", "Не удалось удалить тренировку");
+          }
+        },
+      },
+    ]);
+  };
+
+  const handleEdit = () => {
+    router.push(`edit/${workoutId}`);
+  };
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1 }}>
+        <ActivityIndicator size="small" color={Colors.secondary} />
+      </View>
+    );
+  }
 
   return (
     <ReanimatedSwipeable
@@ -41,17 +72,14 @@ export default function WorkoutPreviewListItem({ workoutId, onSwipeableWillOpen 
         if (swipeableRef.current) onSwipeableWillOpen(swipeableRef.current);
       }}
       renderRightActions={() => (
-        <TouchableOpacity
-          style={{
-            marginRight: 16,
-            padding: 5,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-          onPress={async () => await TemplateWorkoutsModel.remove(workoutId)}
-        >
-          <Ionicons name="trash" size={30} color={"red"} />
-        </TouchableOpacity>
+        <>
+          <TouchableOpacity style={styles.swipeButton} onPress={handleDelete}>
+            <Ionicons name="trash" size={24} color="red" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.swipeButton} onPress={handleEdit}>
+            <Ionicons name="pencil" size={24} color={Colors.secondary} />
+          </TouchableOpacity>
+        </>
       )}
     >
       <View style={styles.container}>
@@ -123,5 +151,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginLeft: 12,
+  },
+  swipeButton: {
+    marginRight: 16,
+    padding: 5,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

@@ -3,13 +3,13 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 import Input from "@/components/base/Input";
-import { useWorkoutsCreateContext } from "@/contexts/WorkoutsCreateContext";
-import { WorkoutCreateState } from "@/types/workouts";
+import { useWorkoutsEditorContext } from "@/contexts/WorkoutsEditorContext";
+import { WorkoutsEditorState } from "@/types/workouts";
 import ButtonString from "@/components/base/ButtonString";
 
-const WorkoutsCreateExerciseCard = memo(
-  ({ exercise, exerciseIndex }: { exercise: WorkoutCreateState["exercises"][number]; exerciseIndex: number }) => {
-    const { dispatch } = useWorkoutsCreateContext();
+const ExerciseCard = memo(
+  ({ exercise, exerciseIndex }: { exercise: WorkoutsEditorState["exercises"][number]; exerciseIndex: number }) => {
+    const { dispatch } = useWorkoutsEditorContext();
 
     return (
       <View style={styles.container}>
@@ -146,7 +146,7 @@ const WorkoutsCreateExerciseCard = memo(
   }
 );
 
-export default WorkoutsCreateExerciseCard;
+export default ExerciseCard;
 
 const styles = StyleSheet.create({
   container: {
