@@ -4,6 +4,8 @@ import {
   NewTemplateExercise,
   NewTemplateSet,
   NewTemplateWorkout,
+  TemplateExercise,
+  TemplateSet,
   TemplateWorkout,
 } from "@/types/db";
 import { db } from "db/client";
@@ -129,6 +131,16 @@ export class TemplateWorkoutsModel {
 
       return { id: templateWorkout.id };
     });
+  }
+
+  /**
+   * Удалить упражнение из тренировки
+   */
+  static async removeExercise(id: TemplateExercise["id"]): Promise<{ id: TemplateExercise["id"] }[]> {
+    return await db
+      .delete(templateExercises)
+      .where(eq(templateExercises.id, id))
+      .returning({ id: templateExercises.id });
   }
 
   /**
