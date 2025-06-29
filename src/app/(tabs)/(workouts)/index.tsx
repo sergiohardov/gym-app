@@ -1,25 +1,45 @@
-import { View, FlatList, StyleSheet } from "react-native";
-import { useLiveQuery } from "drizzle-orm/expo-sqlite";
-import { db } from "db/client";
-import PreviewListItem from "@/components/workouts/index/PreviewListItem";
-import { useRef, useState } from "react";
+import { View, FlatList, StyleSheet, Alert, Button } from "react-native";
+import { useEffect, useRef, useState } from "react";
 import { SwipeableMethods } from "react-native-gesture-handler/lib/typescript/components/ReanimatedSwipeable";
+import { TemplateWorkoutsModel } from "db/models/template-workouts";
+
+import { FullTemplateWorkout } from "@/types/db";
+import PreviewListItem from "@/components/workouts/index/PreviewListItem";
 import EmptyScreen from "@/components/base/EmptyScreen";
 import CreateBottomSheet from "@/components/workouts/index/CreateBottomSheet";
 import Header from "@/components/workouts/index/Header";
+import LoadingScreen from "@/components/base/LoadingScreen";
 
 export default function WorkoutsTabScreen() {
+  const [workouts, setWorkouts] = useState<FullTemplateWorkout[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [isBottomSheetVisible, setIsBottomSheetVisible] = useState<boolean>(false);
   const openedSwipeableRef = useRef<SwipeableMethods | null>(null);
 
-  // TODO: задать типы
-  const { data } = useLiveQuery(
-    db.query.templateWorkouts.findMany({
-      with: {
-        templateExercises: {},
-      },
-    })
-  );
+  const fetchWorkouts = async () => {
+    try {
+      setIsLoading(true);
+      const data = await TemplateWorkoutsModel.getAllFull();
+      setWorkouts(data);
+    } catch (error) {
+      Alert.alert("Ошибка", "Ошибка при получении списка тренировок.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const refreshWorkouts = async () => {
+    try {
+      setRefreshing(true);
+      const data = await TemplateWorkoutsModel.getAllFull();
+      setWorkouts(data);
+    } catch (error) {
+      Alert.alert("Ошибка", "Ошибка при получении списка тренировок.");
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const handleSwipeableOpen = (ref: SwipeableMethods) => {
     if (openedSwipeableRef.current && openedSwipeableRef.current !== ref) {
@@ -29,16 +49,30 @@ export default function WorkoutsTabScreen() {
     openedSwipeableRef.current = ref;
   };
 
+  const handleRefresh = () => {
+    refreshWorkouts();
+  };
+
+  useEffect(() => {
+    fetchWorkouts();
+  }, []);
+
+  if (isLoading) {
+    return <LoadingScreen text="Загрузка списка тренировок..." />;
+  }
+
   return (
     <>
       <Header setIsBottomSheetVisible={setIsBottomSheetVisible} />
 
       <View style={styles.container}>
-        {data.length ? (
+        {workouts.length ? (
           <FlatList
             style={styles.listContainer}
             contentContainerStyle={styles.listContentContainer}
-            data={data}
+            data={workouts}
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
             renderItem={({ item }) => (
               <PreviewListItem
                 workoutId={item.id}
