@@ -4,6 +4,7 @@ import { BottomSheetBackdrop, BottomSheetModal, BottomSheetTextInput, BottomShee
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { TemplateWorkoutsModel } from "db/models/template-workouts";
+import * as Haptics from "expo-haptics";
 
 // TODO: при закрытии если активно добавление тренировки в бд, нужно прервать его
 // TODO: ошибочно добавляются тренировки с одинаковым названием
@@ -36,20 +37,26 @@ export default function CreateBottomSheetModal({
   }, []);
 
   const handleApply = async () => {
-    if (!title.trim()) return false;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    if (!title.trim()) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      return false;
+    }
 
     try {
       setIsLoading(true);
-
       const [workout] = await TemplateWorkoutsModel.create({ name: title });
       if (!workout.id) throw Error;
 
-      handleClose();
-      handleRefresh();
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (error) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       Alert.alert("Ошибка", "Ошибка при создании тренировки.");
       console.log(error);
     } finally {
+      handleClose();
+      handleRefresh();
       setIsLoading(false);
     }
   };

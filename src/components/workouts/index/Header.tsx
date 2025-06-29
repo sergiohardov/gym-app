@@ -1,8 +1,9 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { TouchableOpacity } from "react-native";
 import React from "react";
 import { Stack } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 
 export default function Header({
   setIsBottomSheetVisible,
@@ -16,6 +17,7 @@ export default function Header({
         headerRight: () => (
           <TouchableOpacity
             onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               setIsBottomSheetVisible(true);
             }}
           >

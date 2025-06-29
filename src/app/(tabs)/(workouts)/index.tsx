@@ -2,6 +2,7 @@ import { View, FlatList, StyleSheet, Alert, Button } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import { SwipeableMethods } from "react-native-gesture-handler/lib/typescript/components/ReanimatedSwipeable";
 import { TemplateWorkoutsModel } from "db/models/template-workouts";
+import * as Haptics from "expo-haptics";
 
 import { FullTemplateWorkout } from "@/types/db";
 import PreviewListItem from "@/components/workouts/index/PreviewListItem";
@@ -23,6 +24,7 @@ export default function WorkoutsTabScreen() {
       const data = await TemplateWorkoutsModel.getAllFull();
       setWorkouts(data);
     } catch (error) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       Alert.alert("Ошибка", "Ошибка при получении списка тренировок.");
     } finally {
       setIsLoading(false);
@@ -30,11 +32,14 @@ export default function WorkoutsTabScreen() {
   };
 
   const refreshWorkouts = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    
     try {
       setRefreshing(true);
       const data = await TemplateWorkoutsModel.getAllFull();
       setWorkouts(data);
     } catch (error) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       Alert.alert("Ошибка", "Ошибка при получении списка тренировок.");
     } finally {
       setRefreshing(false);

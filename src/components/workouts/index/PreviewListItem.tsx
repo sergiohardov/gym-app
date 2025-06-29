@@ -27,6 +27,7 @@ export default function PreviewListItem({
   const hasExercises = exercisesCount > 0;
 
   const handleDelete = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     Alert.alert("Удалить тренировку?", "Это действие нельзя отменить", [
       { text: "Отмена", style: "cancel" },
       {
@@ -36,7 +37,6 @@ export default function PreviewListItem({
           try {
             const [request] = await TemplateWorkoutsModel.remove(workoutId);
             if (!request.id) throw Error;
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             handleRefresh();
           } catch (error) {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
