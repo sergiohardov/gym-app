@@ -1,7 +1,4 @@
-import { TouchableOpacity } from "react-native";
-import { router, Stack } from "expo-router";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { Colors } from "@/constants/Colors";
+import { Stack } from "expo-router";
 
 export default function ExercisesTabLayout() {
   return (
@@ -10,11 +7,6 @@ export default function ExercisesTabLayout() {
         name="index"
         options={{
           title: "Тренировки",
-          headerRight: () => (
-            <TouchableOpacity onPress={() => router.push("create")}>
-              <Ionicons name="add-circle-outline" size={30} color={Colors.secondary} />
-            </TouchableOpacity>
-          ),
         }}
       />
 
@@ -22,7 +14,6 @@ export default function ExercisesTabLayout() {
         name="edit/[id]"
         options={{
           title: "Редактировать",
-          headerBackButtonDisplayMode: "generic",
         }}
       />
 
@@ -30,7 +21,6 @@ export default function ExercisesTabLayout() {
         name="session/[id]"
         options={{
           title: "Тренировка",
-          headerBackButtonDisplayMode: "generic",
         }}
       />
     </Stack>
