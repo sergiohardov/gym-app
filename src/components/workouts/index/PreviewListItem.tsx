@@ -6,12 +6,14 @@ import ReanimatedSwipeable, { SwipeableMethods } from "react-native-gesture-hand
 import { router } from "expo-router";
 import { TemplateWorkout } from "@/types/db";
 import { TemplateWorkoutsModel } from "db/models/template-workouts";
+import * as Haptics from "expo-haptics";
 
 type PreviewListItemProps = {
   workoutId: TemplateWorkout["id"];
   workoutName: TemplateWorkout["name"];
   exercisesCount: number;
   onSwipeableWillOpen: (ref: SwipeableMethods) => void;
+  handleRefresh: () => void;
 };
 
 export default function PreviewListItem({
@@ -19,6 +21,7 @@ export default function PreviewListItem({
   exercisesCount,
   workoutName,
   onSwipeableWillOpen,
+  handleRefresh,
 }: PreviewListItemProps) {
   const swipeableRef = useRef(null);
   const hasExercises = exercisesCount > 0;
@@ -31,8 +34,12 @@ export default function PreviewListItem({
         style: "destructive",
         onPress: async () => {
           try {
-            await TemplateWorkoutsModel.remove(workoutId);
+            const [request] = await TemplateWorkoutsModel.remove(workoutId);
+            if (!request.id) throw Error;
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            handleRefresh();
           } catch (error) {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
             Alert.alert("Ошибка", "Не удалось удалить тренировку");
           }
         },
@@ -41,28 +48,35 @@ export default function PreviewListItem({
   };
 
   const handleEdit = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push(`edit/${workoutId}`);
   };
 
   const handleStart = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     router.push(`session/${workoutId}`);
   };
 
   return (
     <ReanimatedSwipeable
       ref={swipeableRef}
-      containerStyle={{ paddingHorizontal: 16 }}
+      containerStyle={{
+        paddingHorizontal: 16,
+      }}
       onSwipeableWillOpen={() => {
         if (swipeableRef.current) onSwipeableWillOpen(swipeableRef.current);
       }}
       renderRightActions={() => (
-        <TouchableOpacity style={styles.swipeButton} onPress={handleDelete}>
-          <Ionicons name="trash" size={24} color="red" />
+        <TouchableOpacity style={styles.deleteButton} onPress={handleDelete} activeOpacity={0.8}>
+          <View style={styles.deleteIcon}>
+            <Ionicons name="trash" size={20} color={Colors.primary} />
+          </View>
+          <Text style={styles.deleteText}>Удалить</Text>
         </TouchableOpacity>
       )}
     >
-      <TouchableOpacity style={styles.container} onPress={handleEdit}>
-        <View style={styles.content}>
+      <TouchableOpacity style={styles.container} onPress={handleEdit} activeOpacity={0.95}>
+        <View style={styles.contentContainer}>
           <Text style={styles.title}>{workoutName}</Text>
 
           <View style={styles.detailsContainer}>
@@ -81,14 +95,17 @@ export default function PreviewListItem({
               </>
             ) : (
               <View style={styles.detailItem}>
-                <Ionicons name="warning-outline" size={18} color={Colors.surface} />
-                <Text style={styles.detailText}>Добавьте упражнения</Text>
+                <Ionicons name="warning-outline" size={18} color={Colors.orange} />
+                <Text style={[styles.detailText, { color: Colors.orange }]}>Добавьте упражнения</Text>
               </View>
             )}
           </View>
         </View>
 
-        <TouchableOpacity style={styles.playButton} onPress={hasExercises ? handleStart : handleEdit}>
+        <TouchableOpacity
+          style={[styles.actionButton, !hasExercises && { backgroundColor: Colors.orange }]}
+          onPress={hasExercises ? handleStart : handleEdit}
+        >
           <Ionicons name={hasExercises ? "play" : "add"} size={24} color="white" />
         </TouchableOpacity>
       </TouchableOpacity>
@@ -97,54 +114,68 @@ export default function PreviewListItem({
 }
 
 const styles = StyleSheet.create({
+  deleteButton: {
+    backgroundColor: Colors.red,
+    justifyContent: "center",
+    alignItems: "center",
+    width: 80,
+    borderRadius: 16,
+    marginRight: 16,
+  },
+  deleteIcon: {
+    marginBottom: 4,
+  },
+  deleteText: {
+    color: Colors.primary,
+    fontSize: 12,
+    fontWeight: "600",
+  },
   container: {
-    backgroundColor: "white",
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: Colors.primary,
+    borderRadius: 16,
+    padding: 20,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    gap: 16,
   },
-  content: {
+  contentContainer: {
     flex: 1,
+    gap: 8,
   },
   title: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 8,
-    color: "#333",
+    color: Colors.secondary,
   },
   detailsContainer: {
     flexDirection: "row",
+    alignItems: "center",
     gap: 16,
   },
   detailItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    gap: 6,
   },
   detailText: {
     fontSize: 14,
-    color: "#666",
+    color: Colors.surface,
   },
-  playButton: {
+  actionButton: {
     backgroundColor: Colors.secondary,
     width: 48,
     height: 48,
     borderRadius: 24,
     alignItems: "center",
     justifyContent: "center",
-    marginLeft: 12,
-  },
-  swipeButton: {
-    marginRight: 16,
-    padding: 5,
-    justifyContent: "center",
-    alignItems: "center",
+    shadowColor: Colors.secondary,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
 });

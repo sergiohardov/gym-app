@@ -79,6 +79,7 @@ export default function WorkoutsTabScreen() {
                 workoutName={item.name}
                 exercisesCount={item.templateExercises.length}
                 onSwipeableWillOpen={handleSwipeableOpen}
+                handleRefresh={handleRefresh}
               />
             )}
             onScrollBeginDrag={() => {
@@ -112,9 +113,9 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     flex: 1,
-    paddingVertical: 16,
   },
   listContentContainer: {
+    paddingVertical: 16,
     gap: 16,
   },
 });
