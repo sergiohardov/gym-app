@@ -21,10 +21,41 @@ export class TemplateWorkoutsModel {
   }
 
   /**
+   * Получить все тренировки полностью
+   */
+  static async getAllFull(): Promise<FullTemplateWorkout[]> {
+    const result = await db.query.templateWorkouts.findMany({
+      orderBy:(templateWorkouts, {desc}) => [desc(templateWorkouts.createdAt)],
+      with: {
+        templateExercises: {
+          orderBy: asc(templateExercises.order),
+          with: {
+            exercise: true,
+            sets: {
+              orderBy: asc(templateSets.order),
+            },
+          },
+        },
+      },
+    });
+
+    return result;
+  }
+
+  /**
    * Получить шаблон тренировки по ID
    */
   static async getById(id: TemplateWorkout["id"]): Promise<TemplateWorkout | null> {
     const result = await db.select().from(templateWorkouts).where(eq(templateWorkouts.id, id)).limit(1);
+
+    return result[0] || null;
+  }
+
+  /**
+   * Найти шаблон тренировки по имени
+   */
+  static async getByName(name: string): Promise<TemplateWorkout | null> {
+    const result = await db.select().from(templateWorkouts).where(eq(templateWorkouts.name, name)).limit(1);
 
     return result[0] || null;
   }
@@ -49,15 +80,6 @@ export class TemplateWorkoutsModel {
     });
 
     return result || null;
-  }
-
-  /**
-   * Найти шаблон тренировки по имени
-   */
-  static async getByName(name: string): Promise<TemplateWorkout | null> {
-    const result = await db.select().from(templateWorkouts).where(eq(templateWorkouts.name, name)).limit(1);
-
-    return result[0] || null;
   }
 
   /**
