@@ -100,6 +100,7 @@ export default function WorkoutsTabScreen() {
       <CreateBottomSheet
         isBottomSheetVisible={isBottomSheetVisible}
         setIsBottomSheetVisible={setIsBottomSheetVisible}
+        handleRefresh={handleRefresh}
       />
     </>
   );

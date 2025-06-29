@@ -11,9 +11,11 @@ import { TemplateWorkoutsModel } from "db/models/template-workouts";
 export default function CreateBottomSheetModal({
   isBottomSheetVisible,
   setIsBottomSheetVisible,
+  handleRefresh,
 }: {
   isBottomSheetVisible: boolean;
   setIsBottomSheetVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  handleRefresh: () => void;
 }) {
   const [title, setTitle] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -42,8 +44,8 @@ export default function CreateBottomSheetModal({
       const [workout] = await TemplateWorkoutsModel.create({ name: title });
       if (!workout.id) throw Error;
 
-      Alert.alert("Успех", `Тренировка "${title}" создана!`);
       handleClose();
+      handleRefresh();
     } catch (error) {
       Alert.alert("Ошибка", "Ошибка при создании тренировки.");
       console.log(error);
@@ -94,7 +96,7 @@ export default function CreateBottomSheetModal({
             ) : (
               <>
                 <Ionicons name="arrow-forward" color={Colors.primary} size={25} />
-                <Text style={styles.continueButtonText}>Продолжить</Text>
+                <Text style={styles.continueButtonText}>Создать</Text>
               </>
             )}
           </TouchableOpacity>
