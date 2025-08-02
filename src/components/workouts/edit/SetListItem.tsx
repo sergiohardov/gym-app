@@ -1,28 +1,32 @@
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
-import React, { useState } from "react";
-import { Colors } from "@/constants/Colors";
+import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { TemplateSetsModel } from "db/models/template-sets";
 import { TemplateExercise, TemplateSet } from "@/types/db";
+import { useWorkoutsEditStore } from "@/stores/WorkoutsEditStore";
+import { Colors } from "@/constants/Colors";
 
-// TODO: FIX TYPES
 export default function SetListItem({
   item,
   index,
   refreshExercise,
-  currentExerciseId,
 }: {
-  item: any;
+  item: TemplateSet;
   index: number;
   refreshExercise: (id: TemplateExercise["id"]) => void;
-  currentExerciseId: TemplateExercise["id"];
 }) {
+  const { workout, refreshWorkout, currentExerciseId } = useWorkoutsEditStore();
+
   const [isLoading, setIsLoading] = useState(false);
+
+  if (!workout) return null;
+  if (!currentExerciseId) return null;
 
   const handleDelete = async (id: TemplateSet["id"]) => {
     try {
       const [set] = await TemplateSetsModel.remove(id);
       if (!set.id) throw Error;
+      refreshWorkout(workout.id);
       refreshExercise(currentExerciseId);
     } catch (error) {
       Alert.alert("Ошибка", "Произошла ошибка при удалении подхода.");
@@ -77,7 +81,7 @@ export default function SetListItem({
           onPress={() => handleUpdate("Введите вес", item.id, "weight")}
           disabled={isLoading}
         >
-          <Text style={styles.inputButtonText}>{item.weight} кг</Text>
+          <Text style={styles.inputButtonText}>{item.weight || 0} кг</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -85,7 +89,7 @@ export default function SetListItem({
           onPress={() => handleUpdate("Количество повторений", item.id, "reps")}
           disabled={isLoading}
         >
-          <Text style={styles.inputButtonText}>{item.reps} раз</Text>
+          <Text style={styles.inputButtonText}>{item.reps || 0} раз</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -93,7 +97,7 @@ export default function SetListItem({
           onPress={() => handleUpdate("Длительность отдыха", item.id, "rest")}
           disabled={isLoading}
         >
-          <Text style={styles.inputButtonText}>{item.rest} сек</Text>
+          <Text style={styles.inputButtonText}>{item.rest || 0} сек</Text>
         </TouchableOpacity>
       </View>
 

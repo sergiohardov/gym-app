@@ -1,20 +1,18 @@
 import { Stack } from "expo-router";
 import { TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Colors } from "react-native/Libraries/NewAppScreen";
 import * as Haptics from "expo-haptics";
+import { useWorkoutsEditStore } from "@/stores/WorkoutsEditStore";
+import { Colors } from "@/constants/Colors";
 
-export default function Header({
-  title,
-  setIsAddModalVisible,
-}: {
-  title: string;
-  setIsAddModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
-}) {
+export default function Header() {
+  const { workout, setIsAddModalVisible } = useWorkoutsEditStore();
+  if (!workout) return null;
+
   return (
     <Stack.Screen
       options={{
-        title: title,
+        title: workout.name,
         headerRight: () => (
           <TouchableOpacity
             onPress={() => {

@@ -1,5 +1,7 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, Alert, TouchableOpacity, ActivityIndicator } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import {
   BottomSheetModal,
   BottomSheetView,
@@ -7,38 +9,27 @@ import {
   BottomSheetFlatList,
   BottomSheetTextInput,
 } from "@gorhom/bottom-sheet";
-import { Colors } from "@/constants/Colors";
-import { Exercise, TemplateWorkout } from "@/types/db";
-import { Ionicons } from "@expo/vector-icons";
-import { TemplateWorkoutsModel } from "db/models/template-workouts";
-import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import * as Haptics from "expo-haptics";
 import { db } from "db/client";
 import { TemplateExercisesModel } from "db/models/template-exercises";
-import EmptyScreen from "@/components/base/EmptyScreen";
+import { Exercise } from "@/types/db";
+import { Colors } from "@/constants/Colors";
+import { useWorkoutsEditStore } from "@/stores/WorkoutsEditStore";
 import LoadingScreen from "@/components/base/LoadingScreen";
-import * as Haptics from "expo-haptics";
+import EmptyScreen from "@/components/base/EmptyScreen";
 
-type AddExerciseBottomSheetProps = {
-  workoutId: TemplateWorkout["id"];
-  isAddModalVisible: boolean;
-  setIsAddModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsCreateModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  refreshWorkout: (id: TemplateWorkout["id"]) => void;
-};
+export default function AddExerciseBottomSheet() {
+  const { workout, isAddModalVisible, setIsAddModalVisible, setIsCreateModalVisible, refreshWorkout } =
+    useWorkoutsEditStore();
 
-export default function AddExerciseBottomSheet({
-  workoutId,
-  isAddModalVisible,
-  setIsAddModalVisible,
-  setIsCreateModalVisible,
-  refreshWorkout,
-}: AddExerciseBottomSheetProps) {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [loadingExerciseIndex, setLoadingExerciseIndex] = useState<number | null>(null);
   const sheetModalRef = useRef<BottomSheetModal>(null);
 
   const { data, error, updatedAt } = useLiveQuery(db.query.exercises.findMany());
   const filteredExercises = data.filter((exercise) => exercise.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  if (!workout) return;
 
   const handleClose = async () => {
     setSearchQuery("");
@@ -52,14 +43,14 @@ export default function AddExerciseBottomSheet({
     try {
       setLoadingExerciseIndex(uiIndex);
       const [response] = await TemplateExercisesModel.create({
-        templateWorkoutId: workoutId,
+        templateWorkoutId: workout.id,
         exerciseId: id,
         order: 0,
       });
 
       if (!response.id) throw Error;
       handleClose();
-      refreshWorkout(workoutId);
+      refreshWorkout(workout.id);
     } catch (error) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       Alert.alert("Ошибка", "Произошла ошибка при добавлении упражнения");
@@ -137,7 +128,6 @@ export default function AddExerciseBottomSheet({
   }, [isAddModalVisible]);
 
   // TODO: При открытии клавиатуры высота модалки уходит за пределы snapPoints
-  // TODO: Список не прокручивается последний элемент вываливатется за пределы низа
   return (
     <BottomSheetModal
       ref={sheetModalRef}
@@ -145,6 +135,7 @@ export default function AddExerciseBottomSheet({
       enableDynamicSizing={false}
       onChange={handleSheetChanges}
       enablePanDownToClose={true}
+      overDragResistanceFactor={0} // Added to fix scrolling BottomSheetFlatList
       backdropComponent={(props) => (
         <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={0} opacity={0.5} onPress={handleClose} />
       )}
@@ -182,7 +173,7 @@ export default function AddExerciseBottomSheet({
 
 const styles = StyleSheet.create({
   contentContainer: {
-    flex: 1,
+    height: "100%",
     paddingHorizontal: 16,
     gap: 20,
   },
@@ -198,16 +189,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.surface,
   },
-  container: {
-    flex: 1,
-    padding: 24,
-    justifyContent: "center",
-    backgroundColor: "grey",
+  listStyle: {},
+  listContainer: {
+    paddingBottom: 50,
   },
-  listStyle: {
-    flex: 1,
-  },
-  listContainer: {},
   listItemContainer: {
     flexDirection: "row",
     alignItems: "center",

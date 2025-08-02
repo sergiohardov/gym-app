@@ -1,48 +1,29 @@
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import {
-  BottomSheetBackdrop,
-  BottomSheetFlatList,
-  BottomSheetModal,
-  BottomSheetTextInput,
-  BottomSheetView,
-} from "@gorhom/bottom-sheet";
-import { Colors } from "@/constants/Colors";
-import { Exercise, TemplateExercise, TemplateSet, TemplateWorkout } from "@/types/db";
-import { TemplateWorkoutsModel } from "db/models/template-workouts";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { BottomSheetBackdrop, BottomSheetFlatList, BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
-import { FlatList } from "react-native-gesture-handler";
-import SetListItem from "./SetListItem";
-import { useLiveQuery } from "drizzle-orm/expo-sqlite";
-import { db } from "db/client";
-import { eq } from "drizzle-orm";
-import { templateExercises, templateSets } from "db/schema";
-import { router } from "expo-router";
-import { ExercisesModel } from "db/models/exercises";
-import { TemplateSetsModel } from "db/models/template-sets";
 import { TemplateExercisesModel } from "db/models/template-exercises";
-import EmptyScreen from "@/components/base/EmptyScreen";
+import { TemplateSetsModel } from "db/models/template-sets";
+import { Colors } from "@/constants/Colors";
+import { Exercise, TemplateExercise, TemplateSet } from "@/types/db";
+import { useWorkoutsEditStore } from "@/stores/WorkoutsEditStore";
+import SetListItem from "@/components/workouts/edit/SetListItem";
 import LoadingScreen from "@/components/base/LoadingScreen";
-
-type EditExerciseBottomSheetProps = {
-  currentExerciseId: TemplateExercise["id"] | null;
-  isEditModalVisible: boolean;
-  setIsEditModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  setCurrentExerciseId: React.Dispatch<React.SetStateAction<TemplateExercise["id"] | null>>;
-  refreshWorkout: (id: TemplateWorkout["id"]) => void;
-  workoutId: TemplateWorkout["id"];
-};
 
 type TemplateExerciseWithSets = TemplateExercise & { exercise: Exercise; sets: TemplateSet[] };
 
-export default function EditExerciseBottomSheet({
-  currentExerciseId,
-  isEditModalVisible,
-  setIsEditModalVisible,
-  setCurrentExerciseId,
-  refreshWorkout,
-  workoutId,
-}: EditExerciseBottomSheetProps) {
+export default function EditExerciseBottomSheet() {
+  const {
+    workout,
+    refreshWorkout,
+    setIsEditModalVisible,
+    setCurrentExerciseId,
+    currentExerciseId,
+    isEditModalVisible,
+  } = useWorkoutsEditStore();
+
+  if (!workout) return null;
+
   const [exercise, setExercise] = useState<TemplateExerciseWithSets | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
@@ -96,7 +77,7 @@ export default function EditExerciseBottomSheet({
     } finally {
       handleClose();
       setIsDeleting(false);
-      refreshWorkout(workoutId);
+      refreshWorkout(workout.id);
     }
   };
 
@@ -119,7 +100,7 @@ export default function EditExerciseBottomSheet({
       Alert.alert("Ошибка", "Ошибка при добавлении сета");
       console.log(error);
     } finally {
-      refreshWorkout(workoutId);
+      refreshWorkout(workout.id);
       refreshExercise(id);
       setIsCreating(false);
     }
@@ -197,14 +178,9 @@ export default function EditExerciseBottomSheet({
               }
             }}
             data={exercise?.sets ?? []}
-            renderItem={({ item, index }) => (
-              <SetListItem
-                item={item}
-                index={index}
-                refreshExercise={refreshExercise}
-                currentExerciseId={currentExerciseId}
-              />
-            )}
+            renderItem={({ item, index }) =>
+              currentExerciseId ? <SetListItem item={item} index={index} refreshExercise={refreshExercise} /> : <></>
+            }
             ListFooterComponent={() => (
               <TouchableOpacity
                 style={styles.listFooterItemContainer}
@@ -229,7 +205,7 @@ export default function EditExerciseBottomSheet({
 
 const styles = StyleSheet.create({
   contentContainer: {
-    flex: 1,
+    height: "100%",
     paddingHorizontal: 16,
     gap: 20,
   },
@@ -253,8 +229,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContainer: {
-    flex: 1,
     gap: 10,
+    paddingBottom: 50,
   },
   listFooterItemContainer: {
     flexDirection: "row",

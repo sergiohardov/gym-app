@@ -1,23 +1,15 @@
 import { View, Text, StyleSheet, TouchableOpacity, Platform, ActivityIndicator, Alert } from "react-native";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { BottomSheetBackdrop, BottomSheetModal, BottomSheetTextInput, BottomSheetView } from "@gorhom/bottom-sheet";
-import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
-import { TemplateWorkoutsModel } from "db/models/template-workouts";
-import { ExercisesModel } from "db/models/exercises";
 import * as Haptics from "expo-haptics";
+import { ExercisesModel } from "db/models/exercises";
+import { Colors } from "@/constants/Colors";
+import { useWorkoutsEditStore } from "@/stores/WorkoutsEditStore";
 
-type CreateExerciseBottomSheetProps = {
-  isCreateModalVisible: boolean;
-  setIsCreateModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsAddModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
-};
+export default function CreateExerciseBottomSheet() {
+  const { isCreateModalVisible, setIsAddModalVisible, setIsCreateModalVisible } = useWorkoutsEditStore();
 
-export default function CreateExerciseBottomSheet({
-  isCreateModalVisible,
-  setIsCreateModalVisible,
-  setIsAddModalVisible,
-}: CreateExerciseBottomSheetProps) {
   const [title, setTitle] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const sheetModalRef = useRef<BottomSheetModal>(null);
