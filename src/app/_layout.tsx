@@ -3,11 +3,11 @@ import { db, expo_sqlite } from "db/client";
 import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
 import migrations from "drizzle/migrations";
 import { router, Slot } from "expo-router";
-import { useSQLiteDevTools } from "expo-sqlite-devtools";
 import { Suspense, useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useAppSettings } from "@/hooks/useAppSettings";
+import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
 
 const InitialLayout = () => {
   const { settings, isLoading } = useAppSettings();
@@ -39,8 +39,7 @@ export default function RootLayout() {
   const { success, error } = useMigrations(db, migrations);
 
   if (__DEV__) {
-    // useDrizzleStudio(expo_sqlite);
-    useSQLiteDevTools(expo_sqlite);
+    useDrizzleStudio(expo_sqlite);
   }
 
   useEffect(() => {

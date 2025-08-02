@@ -1,5 +1,5 @@
 import { Dispatch } from "react";
-import { Exercise, FullTemplateWorkout, TemplateWorkout } from "./db";
+import { Exercise, FullTemplateWorkout, TemplateExercise, TemplateWorkout } from "./db";
 
 export type WorkoutsEditorState = {
   name: string;
@@ -79,6 +79,23 @@ export interface SaveWorkoutResult {
   historyId?: number;
   message?: string;
   error?: string;
+}
+
+export interface WorkoutsEditStore {
+  workout: FullTemplateWorkout | null;
+  currentExerciseId: TemplateExercise["id"] | null;
+  isLoading: boolean;
+  refreshing: boolean;
+  isAddModalVisible: boolean;
+  isCreateModalVisible: boolean;
+  isEditModalVisible: boolean;
+
+  loadWorkout: (id: TemplateWorkout["id"]) => void;
+  refreshWorkout: (id: TemplateWorkout["id"]) => void;
+  setCurrentExerciseId: (id: TemplateExercise["id"] | null) => void;
+  setIsAddModalVisible: (status: boolean) => void;
+  setIsCreateModalVisible: (status: boolean) => void;
+  setIsEditModalVisible: (status: boolean) => void;
 }
 
 export interface WorkoutsSessionStore {
