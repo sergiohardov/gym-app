@@ -5,6 +5,7 @@ import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { TemplateWorkoutsModel } from "db/models/template-workouts";
 import { ExercisesModel } from "db/models/exercises";
+import * as Haptics from "expo-haptics";
 
 type CreateExerciseBottomSheetProps = {
   isCreateModalVisible: boolean;
@@ -23,8 +24,7 @@ export default function CreateExerciseBottomSheet({
 
   const handleSheetChanges = useCallback((index: number) => {
     if (index === -1) {
-      setIsCreateModalVisible(false);
-      setIsAddModalVisible(true);
+      handleClose();
     }
   }, []);
 
@@ -36,20 +36,23 @@ export default function CreateExerciseBottomSheet({
   };
 
   const handleApply = async () => {
-    if (!title.trim()) return false;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    if (!title.trim()) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      return false;
+    }
 
     try {
       setIsLoading(true);
-
       const [exercise] = await ExercisesModel.create({ name: title });
       if (!exercise.id) throw Error;
-
-      Alert.alert("Успех", `Упражнение "${title}" создано!`);
-      handleClose();
     } catch (error) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       Alert.alert("Ошибка", "Ошибка при создании упражнения.");
       console.log(error);
     } finally {
+      handleClose();
       setIsLoading(false);
     }
   };
@@ -96,7 +99,7 @@ export default function CreateExerciseBottomSheet({
             ) : (
               <>
                 <Ionicons name="arrow-forward" color={Colors.primary} size={25} />
-                <Text style={styles.continueButtonText}>Продолжить</Text>
+                <Text style={styles.continueButtonText}>Создать</Text>
               </>
             )}
           </TouchableOpacity>

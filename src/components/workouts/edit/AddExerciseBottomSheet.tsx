@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, Alert, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Alert, TouchableOpacity, ActivityIndicator } from "react-native";
 import {
   BottomSheetModal,
   BottomSheetView,
@@ -14,12 +14,16 @@ import { TemplateWorkoutsModel } from "db/models/template-workouts";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { db } from "db/client";
 import { TemplateExercisesModel } from "db/models/template-exercises";
+import EmptyScreen from "@/components/base/EmptyScreen";
+import LoadingScreen from "@/components/base/LoadingScreen";
+import * as Haptics from "expo-haptics";
 
 type AddExerciseBottomSheetProps = {
   workoutId: TemplateWorkout["id"];
   isAddModalVisible: boolean;
   setIsAddModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
   setIsCreateModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  refreshWorkout: (id: TemplateWorkout["id"]) => void;
 };
 
 export default function AddExerciseBottomSheet({
@@ -27,28 +31,26 @@ export default function AddExerciseBottomSheet({
   isAddModalVisible,
   setIsAddModalVisible,
   setIsCreateModalVisible,
+  refreshWorkout,
 }: AddExerciseBottomSheetProps) {
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [loadingExerciseIndex, setLoadingExerciseIndex] = useState<number | null>(null);
   const sheetModalRef = useRef<BottomSheetModal>(null);
 
-  const { data } = useLiveQuery(db.query.exercises.findMany());
+  const { data, error, updatedAt } = useLiveQuery(db.query.exercises.findMany());
+  const filteredExercises = data.filter((exercise) => exercise.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
-  const handleSheetChanges = useCallback((index: number) => {
-    if (index === -1) {
-      setIsAddModalVisible(false);
-    }
-  }, []);
-
-  const handleClose = () => {
+  const handleClose = async () => {
     setSearchQuery("");
+    setLoadingExerciseIndex(null);
     setIsAddModalVisible(false);
   };
 
-  const handleAddExercise = async (id: Exercise["id"]) => {
-    try {
-      setIsLoading(true);
+  const handleAddExercise = async (id: Exercise["id"], uiIndex: number) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
+    try {
+      setLoadingExerciseIndex(uiIndex);
       const [response] = await TemplateExercisesModel.create({
         templateWorkoutId: workoutId,
         exerciseId: id,
@@ -56,17 +58,75 @@ export default function AddExerciseBottomSheet({
       });
 
       if (!response.id) throw Error;
-      Alert.alert("Успех", "Упражнение добавлено");
       handleClose();
+      refreshWorkout(workoutId);
     } catch (error) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       Alert.alert("Ошибка", "Произошла ошибка при добавлении упражнения");
       console.log(error);
     } finally {
-      setIsLoading(false);
+      setLoadingExerciseIndex(null);
     }
   };
 
-  const filteredExercises = data.filter((exercise) => exercise.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  const handleSheetChanges = useCallback((index: number) => {
+    if (index === -1) {
+      handleClose();
+    }
+  }, []);
+
+  const RenderListContent = () => {
+    if (error) {
+      return (
+        <View style={{ height: 400 }}>
+          <EmptyScreen icon="close" title="Ошибка" subtitle="Ошибка при загрузке упражнений" />
+        </View>
+      );
+    }
+
+    if (!updatedAt) {
+      return (
+        <View style={{ height: 400 }}>
+          <LoadingScreen text="Загрузка упражнений..." />
+        </View>
+      );
+    }
+
+    if (!data.length) {
+      return (
+        <View style={{ height: 400 }}>
+          <EmptyScreen icon="barbell-outline" title="Нет упражнений" subtitle="Создайте первое упражнение" />
+        </View>
+      );
+    }
+
+    return (
+      <BottomSheetFlatList
+        style={styles.listStyle}
+        contentContainerStyle={styles.listContainer}
+        data={filteredExercises}
+        keyExtractor={(item) => item.id.toString()}
+        keyboardShouldPersistTaps="handled"
+        renderItem={(item) => (
+          <TouchableOpacity
+            style={styles.listItemContainer}
+            onPress={() => handleAddExercise(item.item.id, item.index)}
+          >
+            <Text style={styles.listItemTitle}>{item.item.name}</Text>
+
+            {loadingExerciseIndex === item.index ? (
+              <ActivityIndicator />
+            ) : (
+              <Ionicons name="chevron-forward" size={20} color={Colors.surface} />
+            )}
+          </TouchableOpacity>
+        )}
+        ItemSeparatorComponent={() => (
+          <View style={{ height: StyleSheet.hairlineWidth, flex: 1, backgroundColor: Colors.secondary }} />
+        )}
+      />
+    );
+  };
 
   useEffect(() => {
     if (isAddModalVisible) {
@@ -102,28 +162,19 @@ export default function AddExerciseBottomSheet({
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
-          <TouchableOpacity style={styles.createButton} onPress={() => setIsCreateModalVisible(true)}>
+          <TouchableOpacity
+            style={styles.createButton}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setIsCreateModalVisible(true);
+            }}
+          >
             <Ionicons name="arrow-forward" color={Colors.primary} size={25} />
             <Text style={styles.createButtonText}>Создать</Text>
           </TouchableOpacity>
         </View>
 
-        <BottomSheetFlatList
-          style={styles.listStyle}
-          contentContainerStyle={styles.listContainer}
-          data={filteredExercises}
-          keyExtractor={(item) => item.id.toString()}
-          keyboardShouldPersistTaps="handled"
-          renderItem={(item) => (
-            <TouchableOpacity style={styles.listItemContainer} onPress={() => handleAddExercise(item.item.id)}>
-              <Text style={styles.listItemTitle}>{item.item.name}</Text>
-              <Ionicons name="chevron-forward" size={20} color={Colors.surface} />
-            </TouchableOpacity>
-          )}
-          ItemSeparatorComponent={() => (
-            <View style={{ height: StyleSheet.hairlineWidth, flex: 1, backgroundColor: Colors.secondary }} />
-          )}
-        />
+        <RenderListContent />
       </BottomSheetView>
     </BottomSheetModal>
   );

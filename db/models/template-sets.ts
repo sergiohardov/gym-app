@@ -1,9 +1,16 @@
-import { NewTemplateSet, TemplateSet } from "@/types/db";
+import { NewTemplateSet, TemplateExercise, TemplateSet } from "@/types/db";
 import { db } from "db/client";
 import { templateSets } from "db/schema";
 import { eq } from "drizzle-orm";
 
 export class TemplateSetsModel {
+  /**
+   * Получить все сеты упражнения
+   */
+  static async getAllByTemplateExerciseId(id: TemplateExercise["id"]): Promise<TemplateSet[]> {
+    return await db.query.templateSets.findMany({ where: eq(templateSets.templateExerciseId, id) });
+  }
+
   /**
    * Создать сет для упражнения тренировки
    */

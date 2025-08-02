@@ -8,7 +8,7 @@ import {
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import { Colors } from "@/constants/Colors";
-import { Exercise, TemplateExercise, TemplateSet } from "@/types/db";
+import { Exercise, TemplateExercise, TemplateSet, TemplateWorkout } from "@/types/db";
 import { TemplateWorkoutsModel } from "db/models/template-workouts";
 import { Ionicons } from "@expo/vector-icons";
 import { FlatList } from "react-native-gesture-handler";
@@ -20,71 +20,128 @@ import { templateExercises, templateSets } from "db/schema";
 import { router } from "expo-router";
 import { ExercisesModel } from "db/models/exercises";
 import { TemplateSetsModel } from "db/models/template-sets";
+import { TemplateExercisesModel } from "db/models/template-exercises";
+import EmptyScreen from "@/components/base/EmptyScreen";
+import LoadingScreen from "@/components/base/LoadingScreen";
 
 type EditExerciseBottomSheetProps = {
   currentExerciseId: TemplateExercise["id"] | null;
   isEditModalVisible: boolean;
-  setCurrentExerciseId: React.Dispatch<React.SetStateAction<TemplateExercise["id"] | null>>;
   setIsEditModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  setCurrentExerciseId: React.Dispatch<React.SetStateAction<TemplateExercise["id"] | null>>;
+  refreshWorkout: (id: TemplateWorkout["id"]) => void;
+  workoutId: TemplateWorkout["id"];
 };
+
+type TemplateExerciseWithSets = TemplateExercise & { exercise: Exercise; sets: TemplateSet[] };
+
 export default function EditExerciseBottomSheet({
   currentExerciseId,
   isEditModalVisible,
   setIsEditModalVisible,
   setCurrentExerciseId,
+  refreshWorkout,
+  workoutId,
 }: EditExerciseBottomSheetProps) {
-  const [title, setTitle] = useState<string>("Упражнение");
+  const [exercise, setExercise] = useState<TemplateExerciseWithSets | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [isCreating, setIsCreating] = useState<boolean>(false);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
   const sheetModalRef = useRef<BottomSheetModal>(null);
 
-  const handleSheetChanges = useCallback((index: number) => {
-    if (index === -1) {
-      setCurrentExerciseId(null);
-      setIsEditModalVisible(false);
-    }
-  }, []);
+  const fetchExercise = async (id: TemplateExercise["id"]) => {
+    if (isLoading) return;
 
-  const handleClose = () => {
-    setCurrentExerciseId(null);
-    setIsEditModalVisible(false);
+    try {
+      setIsLoading(true);
+      const response = await TemplateExercisesModel.getExerciseWithSets(id);
+      if (!response?.id) throw Error;
+      setExercise(response);
+    } catch (error) {
+      Alert.alert("Ошибка", "Ошибка при получении информации об упражнении");
+      console.log(error);
+      handleClose();
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleRemove = async () => {
+  const refreshExercise = async (id: TemplateExercise["id"]) => {
+    if (refreshing) return;
+
     try {
-      if (!currentExerciseId) throw Error;
-
-      const [exercise] = await TemplateWorkoutsModel.removeExercise(currentExerciseId);
-      if (!exercise.id) throw Error;
-
+      setRefreshing(true);
+      const response = await TemplateExercisesModel.getExerciseWithSets(id);
+      if (!response?.id) throw Error;
+      setExercise(response);
+    } catch (error) {
+      Alert.alert("Ошибка", "Ошибка при получении информации об упражнении");
+      console.log(error);
       handleClose();
-      Alert.alert("Успех", "Упражнение было удалено");
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const handleRemove = async (id: TemplateExercise["id"]) => {
+    if (isDeleting) return;
+    try {
+      setIsDeleting(true);
+      const [response] = await TemplateExercisesModel.remove(id);
+      if (!response.id) throw Error;
     } catch (error) {
       Alert.alert("Ошибка", "Ошибка при удалении упражнения");
       console.log(error);
+    } finally {
+      handleClose();
+      setIsDeleting(false);
+      refreshWorkout(workoutId);
     }
   };
 
-  const handleAddSet = async () => {
+  const handleAddSet = async (id: TemplateExercise["id"]) => {
+    if (isCreating) return;
+
     try {
-      const [set] = await TemplateSetsModel.create({
+      setIsCreating(true);
+
+      const [response] = await TemplateSetsModel.create({
         weight: 0,
         reps: 0,
         rest: 0,
         order: 0,
-        templateExerciseId: currentExerciseId,
+        templateExerciseId: id,
       });
 
-      if (!set.id) throw Error;
-      Alert.alert("Успех", "Сет добавлен");
+      if (!response.id) throw Error;
     } catch (error) {
-      Alert.alert("Ошибка", "Ошибка при добавлении сета к упражнение");
+      Alert.alert("Ошибка", "Ошибка при добавлении сета");
       console.log(error);
+    } finally {
+      refreshWorkout(workoutId);
+      refreshExercise(id);
+      setIsCreating(false);
     }
   };
 
-  const { data, error } = useLiveQuery(
-    db.query.templateSets.findMany({ where: eq(templateSets.templateExerciseId, currentExerciseId) }),
-    [currentExerciseId]
-  );
+  const handleClose = () => {
+    setIsEditModalVisible(false);
+    setExercise(null);
+    setCurrentExerciseId(null);
+  };
+
+  const handleSheetChanges = useCallback((index: number) => {
+    if (index === -1) {
+      handleClose();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (currentExerciseId) {
+      fetchExercise(currentExerciseId);
+    }
+  }, [currentExerciseId]);
 
   useEffect(() => {
     if (isEditModalVisible) {
@@ -108,29 +165,63 @@ export default function EditExerciseBottomSheet({
       <BottomSheetView style={styles.contentContainer}>
         <View style={styles.headerContainer}>
           <View style={styles.headerTextContainer}>
-            <Text style={styles.headerTitle}>{title}</Text>
+            <Text style={styles.headerTitle}>
+              {isLoading ? "Загрузка..." : exercise?.exercise.name ?? "Упражнение"}
+            </Text>
             <Text style={styles.headerSubtitle}>Добавьте подходы</Text>
           </View>
 
-          <TouchableOpacity onPress={handleRemove}>
+          <TouchableOpacity
+            onPress={() => {
+              if (currentExerciseId) {
+                handleRemove(currentExerciseId);
+              }
+            }}
+          >
             <Ionicons name="trash" size={30} color="red" />
           </TouchableOpacity>
         </View>
 
-        <BottomSheetFlatList
-          style={styles.listStyle}
-          contentContainerStyle={styles.listContainer}
-          data={data}
-          renderItem={({ item, index }) => <SetListItem item={item} index={index} />}
-          ListFooterComponent={() => (
-            <TouchableOpacity style={styles.listFooterItemContainer} onPress={handleAddSet}>
-              <View style={styles.listFooterItemIcon}>
-                <Ionicons name="add" size={30} color={Colors.secondary} />
-              </View>
-              <Text style={styles.listFooterItemText}>Добавить подход</Text>
-            </TouchableOpacity>
-          )}
-        />
+        {isLoading ? (
+          <View style={{ height: 400 }}>
+            <LoadingScreen text="Загрузка" />
+          </View>
+        ) : (
+          <BottomSheetFlatList
+            style={styles.listStyle}
+            contentContainerStyle={styles.listContainer}
+            refreshing={refreshing}
+            onRefresh={() => {
+              if (currentExerciseId) {
+                refreshExercise(currentExerciseId);
+              }
+            }}
+            data={exercise?.sets ?? []}
+            renderItem={({ item, index }) => (
+              <SetListItem
+                item={item}
+                index={index}
+                refreshExercise={refreshExercise}
+                currentExerciseId={currentExerciseId}
+              />
+            )}
+            ListFooterComponent={() => (
+              <TouchableOpacity
+                style={styles.listFooterItemContainer}
+                onPress={() => {
+                  if (currentExerciseId) {
+                    handleAddSet(currentExerciseId);
+                  }
+                }}
+              >
+                <View style={styles.listFooterItemIcon}>
+                  <Ionicons name="add" size={30} color={Colors.secondary} />
+                </View>
+                <Text style={styles.listFooterItemText}>Добавить подход</Text>
+              </TouchableOpacity>
+            )}
+          />
+        )}
       </BottomSheetView>
     </BottomSheetModal>
   );
@@ -144,7 +235,6 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     flexDirection: "row",
-    alignItems: "center",
   },
   headerTextContainer: {
     gap: 5,

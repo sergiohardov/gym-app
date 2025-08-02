@@ -1,75 +1,101 @@
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
-import React, { useEffect, useState } from "react";
-import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
+import React, { useState } from "react";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { TemplateSetsModel } from "db/models/template-sets";
-import { TemplateSet } from "@/types/db";
+import { TemplateExercise, TemplateSet } from "@/types/db";
 
-export default function SetListItem({ item, index }) {
-  const [weight, setWeight] = useState(item.weight.toString());
-  const [reps, setReps] = useState(item.reps.toString());
-  const [rest, setRest] = useState(item.rest.toString());
-  const [isUpdateButtonVisible, setIsUpdateButtonVisible] = useState(false);
+// TODO: FIX TYPES
+export default function SetListItem({
+  item,
+  index,
+  refreshExercise,
+  currentExerciseId,
+}: {
+  item: any;
+  index: number;
+  refreshExercise: (id: TemplateExercise["id"]) => void;
+  currentExerciseId: TemplateExercise["id"];
+}) {
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: TemplateSet["id"]) => {
     try {
       const [set] = await TemplateSetsModel.remove(id);
       if (!set.id) throw Error;
-      Alert.alert("Успех", "Подход удален.");
+      refreshExercise(currentExerciseId);
     } catch (error) {
       Alert.alert("Ошибка", "Произошла ошибка при удалении подхода.");
       console.log(error);
     }
   };
 
-  const handleUpdate = async (id: TemplateSet["id"]) => {
-    try {
-      const set = await TemplateSetsModel.update(id, { weight: weight, reps: reps, rest: rest });
-      if (!set?.id) throw Error;
-      Alert.alert("Успех", "Сет обновлен");
-    } catch (error) {
-      Alert.alert("Ошибка", "Ошибка при обновлении сета");
-      console.log(error);
-    }
-  };
+  const handleUpdate = (title: string, id: TemplateSet["id"], keyOfSet: keyof TemplateSet) => {
+    if (isLoading) return;
 
-  useEffect(() => {
-    if (item.weight.toString() !== weight || item.reps.toString() !== reps || item.rest.toString() !== rest) {
-      setIsUpdateButtonVisible(true);
-    } else {
-      setIsUpdateButtonVisible(false);
-    }
-  }, [weight, reps, rest]);
+    Alert.prompt(
+      title,
+      "",
+      [
+        {
+          text: "Отмена",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        {
+          text: "ОК",
+          onPress: async (text) => {
+            try {
+              setIsLoading(true);
+              const set = await TemplateSetsModel.update(id, { [keyOfSet]: text ? +text : 0 });
+              if (!set?.id) throw Error;
+              refreshExercise(currentExerciseId);
+            } catch (error) {
+              Alert.alert("Ошибка", "Ошибка при обновлении сета");
+              console.log(error);
+            } finally {
+              setIsLoading(false);
+            }
+          },
+        },
+      ],
+      "plain-text",
+      "",
+      "numeric"
+    );
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.numberContainer}>
-        <Text style={styles.numberText}>{index + 1}</Text>
+        {isLoading ? <ActivityIndicator /> : <Text style={styles.numberText}>{index + 1}</Text>}
       </View>
 
       <View style={styles.inputsContainer}>
-        <View style={styles.inputContainer}>
-          <BottomSheetTextInput style={styles.inputStyles} value={weight} onChangeText={setWeight} />
-          <Text style={styles.inputAfterStyles}>кг</Text>
-        </View>
-
-        <View style={styles.inputContainer}>
-          <BottomSheetTextInput style={styles.inputStyles} value={reps} onChangeText={setReps} />
-          <Text style={styles.inputAfterStyles}>раз</Text>
-        </View>
-
-        <View style={styles.inputContainer}>
-          <BottomSheetTextInput style={styles.inputStyles} value={rest} onChangeText={setRest} />
-          <Text style={styles.inputAfterStyles}>сек</Text>
-        </View>
-      </View>
-
-      {isUpdateButtonVisible && (
-        <TouchableOpacity onPress={() => handleUpdate(item.id)}>
-          <Ionicons name="checkmark" size={24} color="green" />
+        <TouchableOpacity
+          style={styles.inputButton}
+          onPress={() => handleUpdate("Введите вес", item.id, "weight")}
+          disabled={isLoading}
+        >
+          <Text style={styles.inputButtonText}>{item.weight} кг</Text>
         </TouchableOpacity>
-      )}
+
+        <TouchableOpacity
+          style={styles.inputButton}
+          onPress={() => handleUpdate("Количество повторений", item.id, "reps")}
+          disabled={isLoading}
+        >
+          <Text style={styles.inputButtonText}>{item.reps} раз</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.inputButton}
+          onPress={() => handleUpdate("Длительность отдыха", item.id, "rest")}
+          disabled={isLoading}
+        >
+          <Text style={styles.inputButtonText}>{item.rest} сек</Text>
+        </TouchableOpacity>
+      </View>
 
       <TouchableOpacity onPress={() => handleDelete(item.id)}>
         <Ionicons name="close" size={24} color="red" />
@@ -112,11 +138,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 50,
   },
-  inputStyles: {
+  inputButton: {
+    backgroundColor: Colors.secondary,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 50,
+  },
+  inputButtonText: {
     color: Colors.primary,
     fontSize: 16,
-  },
-  inputAfterStyles: {
-    color: Colors.primary,
   },
 });

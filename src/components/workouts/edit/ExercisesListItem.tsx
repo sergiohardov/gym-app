@@ -5,19 +5,19 @@ import { Ionicons } from "@expo/vector-icons";
 
 export default function ExercisesListItem({
   handlePress,
-  icon,
+  index,
   title,
   subtitle = "",
 }: {
   handlePress: () => void;
-  icon: keyof typeof Ionicons.glyphMap;
+  index: number;
   title: string;
   subtitle?: string;
 }) {
   return (
     <TouchableOpacity style={styles.container} onPress={handlePress}>
-      <View style={styles.iconContainer}>
-        <Ionicons name={icon} size={24} color={Colors.secondary} />
+      <View style={styles.numberContainer}>
+        <Text style={styles.numberText}>{index + 1}</Text>
       </View>
 
       <View style={styles.textContainer}>
@@ -36,11 +36,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
   },
-  iconContainer: {
+  numberContainer: {
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
     borderWidth: 2,
     borderColor: Colors.secondary,
     borderRadius: 50,
     padding: 8,
+  },
+  numberText: {
+    fontWeight: "bold",
+    fontSize: 16,
   },
   textContainer: {
     flex: 1,
